@@ -154,6 +154,19 @@
             border-radius: 4px;
         }
 
+        /* 勝敗バッジ */
+        .res-badge {
+            display: inline-block;
+            font-size: 10px;
+            font-weight: bold;
+            padding: 2px 6px;
+            border-radius: 4px;
+            margin-left: 6px;
+        }
+        .res-win { background-color: #e53e3e; color: #fff; }  /* 勝 */
+        .res-draw { background-color: #d69e2e; color: #fff; } /* 引分 */
+        .res-lose { background-color: #3182ce; color: #fff; } /* 負 */
+
         .vpt-panel {
             margin-top: 4px;
             padding: 4px;
@@ -411,10 +424,11 @@
     <table id="schedule-table">
         <thead>
             <tr>
-                <th style="width: 70px;">コート</th>
-                <th style="width: 70px;">試合</th>
+                <th style="width: 65px;">コート</th>
+                <th style="width: 65px;">試合</th>
                 <th>対戦カード</th>
-                <th style="width: 140px;">スコア (内野人数)</th>
+                <th style="width: 130px;">スコア (内野人数)</th>
+                <th style="width: 120px;">結果 (勝/引分/負)</th>
             </tr>
         </thead>
         <tbody id="schedule-tbody">
@@ -562,6 +576,7 @@
                         <input type="number" class="score-input" id="s_${m.id}_a" oninput="calculateAll()" min="0"> - 
                         <input type="number" class="score-input" id="s_${m.id}_b" oninput="calculateAll()" min="0">
                     </td>
+                    <td id="res_disp_${m.id}">-</td>
                 `;
                 tbody.appendChild(tr);
             });
@@ -781,11 +796,25 @@
             state.matches.forEach(m => {
                 const saEl = document.getElementById(`s_${m.id}_a`);
                 const sbEl = document.getElementById(`s_${m.id}_b`);
+                const resDispEl = document.getElementById(`res_disp_${m.id}`);
 
                 if (saEl && sbEl && saEl.value !== '' && sbEl.value !== '') {
                     const sa = parseInt(saEl.value, 10);
                     const sb = parseInt(sbEl.value, 10);
                     const r = m.roundNum;
+
+                    // 予選スケジュール表の「結果（勝ち/引き分け/負け）」表示更新
+                    if (resDispEl) {
+                        const teamAName = state.teams[m.teamA];
+                        const teamBName = state.teams[m.teamB];
+                        if (sa > sb) {
+                            resDispEl.innerHTML = `<span style="color:#fff;">${teamAName}</span><span class="res-badge res-win">勝</span>`;
+                        } else if (sb > sa) {
+                            resDispEl.innerHTML = `<span style="color:#fff;">${teamBName}</span><span class="res-badge res-win">勝</span>`;
+                        } else {
+                            resDispEl.innerHTML = `<span class="res-badge res-draw">引き分け</span>`;
+                        }
+                    }
 
                     // 該当巡に加算
                     addStats(statsRounds[r][m.teamA], statsRounds[r][m.teamB], sa, sb);
@@ -803,6 +832,8 @@
                     if (!cellsTotal[`${m.teamB}_${m.teamA}`]) cellsTotal[`${m.teamB}_${m.teamA}`] = [];
                     cellsTotal[`${m.teamA}_${m.teamB}`].push(`${symA}${sa}-${sb}`);
                     cellsTotal[`${m.teamB}_${m.teamA}`].push(`${symB}${sb}-${sa}`);
+                } else {
+                    if (resDispEl) resDispEl.innerText = '-';
                 }
             });
 
@@ -824,7 +855,7 @@
                 sortedTarget = [...statsTotal].sort((a,b) => b.pts - a.pts || b.myIn - a.myIn);
             }
 
-            // 3. 決勝トーナメントの計算と図形への反映
+            // 決勝トーナメントの計算と図形への反映
             const setsRule = document.getElementById('cfg-sets-rule').value;
             const isSemi3Sets = checkIs3Sets('semi', setsRule);
             const isFinal3Sets = checkIs3Sets('final', setsRule);
