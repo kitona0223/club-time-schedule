@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>マルチドッジボール大会管理システム (プロトタイプ)</title>
+    <title>マルチドッジボール大会管理システム</title>
     <style>
         :root {
             --bg: #0f172a;
@@ -372,10 +372,12 @@
                 </select>
             </div>
             <div class="config-item">
-                <label>3セットマッチ採用条件</label>
+                <label>3セットマッチ適用範囲</label>
                 <select id="cfg-sets-rule" onchange="buildApp()">
-                    <option value="semi">準決勝から (準決勝・決勝)</option>
-                    <option value="final">決勝のみ</option>
+                    <option value="all">1回戦（全試合）から</option>
+                    <option value="qf">準々決勝（ベスト8）から</option>
+                    <option value="semi" selected>準決勝（ベスト4）から</option>
+                    <option value="final">決勝戦のみ</option>
                     <option value="none">全試合 1セットマッチ</option>
                 </select>
             </div>
@@ -595,14 +597,25 @@
             });
         }
 
-        // 決勝トーナメント入力欄の構築 (条件に応じたセット数の判定)
+        // ラウンドごとの3セット判定ヘルパー関数
+        function checkIs3Sets(roundLevel, setsRule) {
+            // roundLevel: 'all'(1回戦/全試合), 'qf'(準々決勝), 'semi'(準決勝), 'final'(決勝)
+            if (setsRule === 'none') return false;
+            if (setsRule === 'all') return true;
+            if (setsRule === 'qf') return ['qf', 'semi', 'final'].includes(roundLevel);
+            if (setsRule === 'semi') return ['semi', 'final'].includes(roundLevel);
+            if (setsRule === 'final') return roundLevel === 'final';
+            return false;
+        }
+
+        // 決勝トーナメント入力欄の構築
         function buildTournamentInputs() {
             const container = document.getElementById('tournament-container');
             container.innerHTML = '';
             
             const setsRule = document.getElementById('cfg-sets-rule').value;
-            const isSemi3Sets = (setsRule === 'semi');
-            const isFinal3Sets = (setsRule === 'semi' || setsRule === 'final');
+            const isSemi3Sets = checkIs3Sets('semi', setsRule);
+            const isFinal3Sets = checkIs3Sets('final', setsRule);
 
             let html = `
                 <div class="tourn-match-card">
@@ -790,8 +803,8 @@
 
             // 3. 決勝トーナメントの計算と図形への反映
             const setsRule = document.getElementById('cfg-sets-rule').value;
-            const isSemi3Sets = (setsRule === 'semi');
-            const isFinal3Sets = (setsRule === 'semi' || setsRule === 'final');
+            const isSemi3Sets = checkIs3Sets('semi', setsRule);
+            const isFinal3Sets = checkIs3Sets('final', setsRule);
 
             // チーム名（1位vs4位、2位vs3位）
             let semi1A = sorted[0] ? sorted[0].name : '-';
