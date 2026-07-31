@@ -141,7 +141,6 @@
             color: #fff;
         }
         .court-A { background: #3182ce; }
-        .court-B { background: #dd6b20; }
 
         .score-input {
             width: 38px;
@@ -174,11 +173,12 @@
 
         /* 星取表 */
         .matrix-table td.self-cell { background-color: #334155; }
+        .cell-res { font-size: 10px; line-height: 1.3; }
         .win { color: var(--gold); font-weight: bold; }
         .draw { color: #94a3b8; }
         .lose { color: #f87171; }
-        .stats-hdr { background-color: #0f172a; color: var(--accent2); width: 32px; }
-        .rank-hdr { background-color: #0f172a; color: var(--gold); width: 40px; }
+        .stats-hdr { background-color: #0f172a; color: var(--accent2); width: 34px; }
+        .rank-hdr { background-color: #0f172a; color: var(--gold); width: 44px; }
 
         /* トーナメント進行カードリスト */
         .tourn-card-list {
@@ -547,8 +547,8 @@
                     <td>第${idx + 1}試合<br><span style="font-size:9px; color:var(--sub-text);">${m.roundNum}巡目</span></td>
                     <td>${state.teams[m.teamA]} vs ${state.teams[m.teamB]}</td>
                     <td>
-                        <input type="number" class="score-input" id="s_${m.id}_a" onchange="calculateAll()" min="0"> - 
-                        <input type="number" class="score-input" id="s_${m.id}_b" onchange="calculateAll()" min="0">
+                        <input type="number" class="score-input" id="s_${m.id}_a" oninput="calculateAll()" min="0"> - 
+                        <input type="number" class="score-input" id="s_${m.id}_b" oninput="calculateAll()" min="0">
                     </td>
                 `;
                 tbody.appendChild(tr);
@@ -560,7 +560,7 @@
             const container = document.getElementById('matrix-container');
             container.innerHTML = '';
 
-            let html = `<h4 style="text-align:left; color:var(--gold); margin:10px 0 5px 0;">■ 予選通算対戦表</h4>`;
+            let html = `<h4 style="text-align:left; color:var(--gold); margin:10px 0 5px 0;">■ 予選対戦表（星取表）</h4>`;
             html += `<table class="matrix-table"><thead><tr><th>チーム</th>`;
             state.teams.forEach((_, tIdx) => {
                 html += `<th>${state.teams[tIdx]}</th>`;
@@ -573,7 +573,7 @@
                     if (rIdx === cIdx) {
                         html += `<td class="self-cell">-</td>`;
                     } else {
-                        html += `<td id="m_cell_${rIdx}_${cIdx}">-</td>`;
+                        html += `<td id="m_cell_${rIdx}_${cIdx}" class="cell-res">-</td>`;
                     }
                 });
                 html += `<td id="st_w_${rIdx}">0</td><td id="st_d_${rIdx}">0</td><td id="st_l_${rIdx}">0</td>
@@ -656,8 +656,8 @@
                 html += `
                     <div style="font-size:10px;">
                         Set${s}<br>
-                        <input type="number" class="score-input" id="ts_${matchKey}_s${s}_a" onchange="calculateAll()" min="0"> - 
-                        <input type="number" class="score-input" id="ts_${matchKey}_s${s}_b" onchange="calculateAll()" min="0">
+                        <input type="number" class="score-input" id="ts_${matchKey}_s${s}_a" oninput="calculateAll()" min="0"> - 
+                        <input type="number" class="score-input" id="ts_${matchKey}_s${s}_b" oninput="calculateAll()" min="0">
                         <div id="v_${matchKey}_s${s}_panel" class="vpt-panel" style="display:none;">
                             <select id="v_${matchKey}_s${s}_win" class="v-select" onchange="calculateAll()">
                                 <option value="">Vpt</option>
@@ -732,13 +732,21 @@
             return { winner, loser, dispText };
         }
 
-        // 全体の計算・自動更新処理
+        // 全体の計算・星取表の書き換え・自動更新処理
         function calculateAll() {
             const targetMode = document.getElementById('cfg-target-round').value;
 
             // 集計オブジェクト（通算用 & 最終巡用）
             let statsAll = state.teams.map((name, i) => ({ id: i, name, pts: 0, win: 0, draw: 0, lose: 0, myIn: 0, oppIn: 0 }));
             let statsTarget = state.teams.map((name, i) => ({ id: i, name, pts: 0, win: 0, draw: 0, lose: 0, myIn: 0, oppIn: 0 }));
+
+            // 星取表セルバッファのクリア
+            let matrixCells = {};
+            for (let r = 0; r < state.teams.length; r++) {
+                for (let c = 0; c < state.teams.length; c++) {
+                    if (r !== c) matrixCells[`${r}_${c}`] = [];
+                }
+            }
 
             // 予選スコア集計
             state.matches.forEach(m => {
@@ -752,6 +760,12 @@
                     // 通算に加算
                     addStats(statsAll[m.teamA], statsAll[m.teamB], sa, sb);
 
+                    // 星取表セル用の文字記録
+                    let symbolA = sa > sb ? '◯' : (sa < sb ? '●' : '△');
+                    let symbolB = sb > sa ? '◯' : (sb < sa ? '●' : '△');
+                    matrixCells[`${m.teamA}_${m.teamB}`].push(`${symbolA}${sa}-${sb}`);
+                    matrixCells[`${m.teamB}_${m.teamA}`].push(`${symbolB}${sb}-${sa}`);
+
                     // 判定対象モードに応じて加算
                     if (targetMode === 'all') {
                         addStats(statsTarget[m.teamA], statsTarget[m.teamB], sa, sb);
@@ -761,7 +775,20 @@
                 }
             });
 
-            // 集計値を星取表に反映
+            // 星取表セルの描画更新
+            for (let r = 0; r < state.teams.length; r++) {
+                for (let c = 0; c < state.teams.length; c++) {
+                    if (r !== c) {
+                        const cellEl = document.getElementById(`m_cell_${r}_${c}`);
+                        if (cellEl) {
+                            const arr = matrixCells[`${r}_${c}`];
+                            cellEl.innerHTML = arr.length > 0 ? arr.join('<br>') : '-';
+                        }
+                    }
+                }
+            }
+
+            // 集計値を星取表の右側（勝敗・得失点）に反映
             statsAll.forEach(st => {
                 const w = document.getElementById(`st_w_${st.id}`);
                 if (w) {
