@@ -14,6 +14,7 @@
             --text: #f8fafc;
             --sub-text: #94a3b8;
             --border: #334155;
+            --line-color: #64748b;
         }
         * { box-sizing: border-box; }
         body {
@@ -31,7 +32,7 @@
             letter-spacing: 2px;
         }
 
-        /* チーム名設定エリア */
+        /* 1. チーム名設定エリア */
         .setup-card {
             background: var(--card-bg);
             padding: 15px;
@@ -54,6 +55,7 @@
             color: white;
             text-align: center;
             font-weight: bold;
+            width: 100%;
         }
         .btn-update {
             width: 100%;
@@ -70,7 +72,7 @@
         .section-title {
             font-size: 18px;
             color: var(--accent2);
-            margin: 25px 0 10px 0;
+            margin: 30px 0 12px 0;
             text-align: left;
             max-width: 850px;
             margin-left: auto;
@@ -89,16 +91,27 @@
             border-radius: 8px;
             overflow: hidden;
             font-size: 13px;
+            table-layout: fixed; /* 各列の幅を均等・固定にする */
         }
         th, td {
             padding: 6px 4px;
             border: 1px solid var(--border);
             text-align: center;
             vertical-align: middle;
+            word-break: break-all;
         }
         th {
             background: #1e293b;
             color: var(--sub-text);
+        }
+
+        /* チーム名表示部分の固定セル幅指定 */
+        .team-name-cell {
+            width: 90px;
+            font-weight: bold;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
         /* 星取表専用スタイル */
@@ -109,10 +122,12 @@
         .matrix-table th.stats-hdr {
             background-color: #0f172a;
             color: var(--accent2);
+            width: 32px;
         }
         .matrix-table th.rank-hdr {
             background-color: #0f172a;
             color: #fbd38d;
+            width: 40px;
         }
 
         /* 星取表のセル（勝負結果＋スコア） */
@@ -121,36 +136,36 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            min-height: 42px;
+            min-height: 40px;
             line-height: 1.2;
         }
         .cell-symbol {
             font-size: 13px;
             font-weight: bold;
         }
-        .cell-symbol.win { color: #fbd38d; }   /* 〇：ゴールド */
-        .cell-symbol.draw { color: #94a3b8; }  /* △：グレー */
-        .cell-symbol.lose { color: #f87171; }  /* ✕：赤 */
+        .cell-symbol.win { color: #fbd38d; }
+        .cell-symbol.draw { color: #94a3b8; }
+        .cell-symbol.lose { color: #f87171; }
 
         .cell-score {
             font-size: 11px;
             color: #cbd5e1;
         }
 
-        /* 得点入力用インプット */
+        /* スコア入力インプット */
         .score-input {
-            width: 45px;
-            padding: 5px;
+            width: 42px;
+            padding: 4px;
             text-align: center;
             background: #0f172a;
             border: 1px solid var(--border);
             color: white;
             font-weight: bold;
-            font-size: 16px;
+            font-size: 15px;
             border-radius: 4px;
         }
 
-        /* 順位表示のスタイル */
+        /* 順位表示バッジ */
         .rank-badge {
             font-weight: bold;
         }
@@ -159,29 +174,133 @@
         .rank-badge.rank-3 { color: #ed8936; font-size: 14px; }
         .rank-badge.rank-4 { color: #94a3b8; font-size: 14px; }
 
-        /* トーナメント表示 */
-        .tournament-grid {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
+        /* ----------------------------------------------------
+           🏆 甲子園風トーナメント表（図形レイアウト）
+        ---------------------------------------------------- */
+        .tournament-wrapper {
             max-width: 850px;
             margin: 0 auto;
-        }
-        .t-match-card {
             background: var(--card-bg);
-            padding: 12px;
-            border-radius: 8px;
             border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 20px;
+            overflow-x: auto;
         }
-        .t-match-title {
-            font-size: 13px;
-            color: var(--accent);
-            margin-bottom: 8px;
-            font-weight: bold;
-        }
-        .t-flex {
+        .tournament-tree {
             display: flex;
-            justify-content: space-around;
+            justify-content: center;
+            align-items: flex-end;
+            min-width: 600px;
+            gap: 40px;
+            padding-top: 20px;
+        }
+        
+        /* 半分の山（準決勝1ブロック、準決勝2ブロック） */
+        .tree-half {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+        }
+
+        /* ボトムチーム（予選チームペア） */
+        .tree-teams {
+            display: flex;
+            gap: 60px;
+            position: relative;
+        }
+
+        /* チームノード（枠） */
+        .t-team-node {
+            width: 100px;
+            background: #0f172a;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 6px 4px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            position: relative;
+            z-index: 2;
+        }
+        .t-team-label {
+            font-size: 11px;
+            color: var(--sub-text);
+            width: 100%;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .t-team-name {
+            font-size: 13px;
+            font-weight: bold;
+            color: #fff;
+            width: 100%;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* 1本足・山型線の表現 */
+        .bracket-line {
+            width: 100%;
+            height: 30px;
+            border-top: 3px solid var(--line-color);
+            border-left: 3px solid var(--line-color);
+            border-right: 3px solid var(--line-color);
+            margin-top: -1px;
+            position: relative;
+        }
+        /* 山の中央から上へ伸びる縦線 */
+        .bracket-line::after {
+            content: '';
+            position: absolute;
+            top: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 3px;
+            height: 25px;
+            background-color: var(--line-color);
+        }
+
+        /* 試合スコア入力用ミニカード */
+        .match-score-box {
+            background: #0f172a;
+            border: 1px solid var(--accent);
+            border-radius: 6px;
+            padding: 4px 8px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            z-index: 2;
+        }
+        .match-score-box.final {
+            border-color: #fbd38d;
+        }
+
+        /* 決勝戦エリア */
+        .final-center {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .trophy-title {
+            font-size: 14px;
+            font-weight: bold;
+            color: #fbd38d;
+            margin-bottom: 6px;
+        }
+
+        /* 3位決定戦別枠カード */
+        .third-place-box {
+            margin-top: 25px;
+            padding-top: 15px;
+            border-top: 1px dashed var(--border);
+            display: flex;
+            flex-direction: column;
             align-items: center;
         }
 
@@ -230,10 +349,10 @@
     <table>
         <thead>
             <tr>
-                <th>試合</th>
-                <th>対戦カード</th>
-                <th>内野人数（スコア）</th>
-                <th>審判</th>
+                <th style="width: 50px;">試合</th>
+                <th style="width: 180px;">対戦カード</th>
+                <th style="width: 110px;">スコア</th>
+                <th style="width: 90px;">審判</th>
             </tr>
         </thead>
         <tbody id="league-schedule">
@@ -256,53 +375,75 @@
         </table>
     </div>
 
-    <!-- 4. 決勝トーナメント -->
-    <div class="section-title">🏆 決勝トーナメント</div>
-    <div class="tournament-grid">
-        <!-- 準決勝 1 -->
-        <div class="t-match-card">
-            <div class="t-match-title">準決勝 第1試合（予選1位 vs 予選4位）</div>
-            <div class="t-flex">
-                <span id="t-semi1-a">1位</span>
-                <input type="number" class="score-input" id="t-score-1a">
-                <span>VS</span>
-                <input type="number" class="score-input" id="t-score-1b">
-                <span id="t-semi1-b">4位</span>
+    <!-- 4. 甲子園風 決勝トーナメント表（図形表現） -->
+    <div class="section-title">🏆 決勝トーナメント表</div>
+    <div class="tournament-wrapper">
+        
+        <!-- 頂点：決勝戦 -->
+        <div class="final-center">
+            <div class="trophy-title">🥇 決勝戦</div>
+            <div class="match-score-box final">
+                <input type="number" class="score-input" id="t-score-fa" placeholder="-">
+                <span style="font-size:12px; font-weight:bold; color:#fbd38d;">VS</span>
+                <input type="number" class="score-input" id="t-score-fb" placeholder="-">
             </div>
         </div>
-        <!-- 準決勝 2 -->
-        <div class="t-match-card">
-            <div class="t-match-title">準決勝 第2試合（予選2位 vs 予選3位）</div>
-            <div class="t-flex">
-                <span id="t-semi2-a">2位</span>
-                <input type="number" class="score-input" id="t-score-2a">
-                <span>VS</span>
-                <input type="number" class="score-input" id="t-score-2b">
-                <span id="t-semi2-b">3位</span>
+
+        <!-- トーナメント山図 -->
+        <div class="tournament-tree">
+            <!-- 左の山（準決勝1：1位 vs 4位） -->
+            <div class="tree-half">
+                <div class="match-score-box">
+                    <input type="number" class="score-input" id="t-score-1a" placeholder="-">
+                    <span style="font-size:11px;">VS</span>
+                    <input type="number" class="score-input" id="t-score-1b" placeholder="-">
+                </div>
+                <div class="bracket-line"></div>
+                <div class="tree-teams">
+                    <div class="t-team-node">
+                        <span class="t-team-label">予選 1位</span>
+                        <span class="t-team-name" id="t-semi1-a">1位チーム</span>
+                    </div>
+                    <div class="t-team-node">
+                        <span class="t-team-label">予選 4位</span>
+                        <span class="t-team-name" id="t-semi1-b">4位チーム</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 右の山（準決勝2：2位 vs 3位） -->
+            <div class="tree-half">
+                <div class="match-score-box">
+                    <input type="number" class="score-input" id="t-score-2a" placeholder="-">
+                    <span style="font-size:11px;">VS</span>
+                    <input type="number" class="score-input" id="t-score-2b" placeholder="-">
+                </div>
+                <div class="bracket-line"></div>
+                <div class="tree-teams">
+                    <div class="t-team-node">
+                        <span class="t-team-label">予選 2位</span>
+                        <span class="t-team-name" id="t-semi2-a">2位チーム</span>
+                    </div>
+                    <div class="t-team-node">
+                        <span class="t-team-label">予選 3位</span>
+                        <span class="t-team-name" id="t-semi2-b">3位チーム</span>
+                    </div>
+                </div>
             </div>
         </div>
-        <!-- 3位決定戦 -->
-        <div class="t-match-card" style="border-color: #a0aec0;">
-            <div class="t-match-title" style="color: #a0aec0;">🥉 3位決定戦</div>
-            <div class="t-flex">
-                <input type="text" class="score-input" id="t-3rd-teamA" style="width:100px; font-size:12px;" placeholder="準決勝敗者1">
-                <input type="number" class="score-input" id="t-score-3a">
-                <span>VS</span>
-                <input type="number" class="score-input" id="t-score-3b">
-                <input type="text" class="score-input" id="t-3rd-teamB" style="width:100px; font-size:12px;" placeholder="準決勝敗者2">
+
+        <!-- 3位決定戦（別枠表示） -->
+        <div class="third-place-box">
+            <div style="font-size:13px; font-weight:bold; color:#a0aec0; margin-bottom: 6px;">🥉 3位決定戦</div>
+            <div class="match-score-box" style="border-color: #a0aec0;">
+                <input type="text" class="score-input" id="t-3rd-teamA" style="width:75px; font-size:11px;" placeholder="準決勝敗者1">
+                <input type="number" class="score-input" id="t-score-3a" placeholder="-">
+                <span style="font-size:11px; color:#a0aec0;">VS</span>
+                <input type="number" class="score-input" id="t-score-3b" placeholder="-">
+                <input type="text" class="score-input" id="t-3rd-teamB" style="width:75px; font-size:11px;" placeholder="準決勝敗者2">
             </div>
         </div>
-        <!-- 決勝戦 -->
-        <div class="t-match-card" style="border-color: #f6e05e;">
-            <div class="t-match-title" style="color: #f6e05e;">🥇 決勝戦</div>
-            <div class="t-flex">
-                <input type="text" class="score-input" id="t-final-teamA" style="width:100px; font-size:12px;" placeholder="準決勝勝者1">
-                <input type="number" class="score-input" id="t-score-fa">
-                <span>VS</span>
-                <input type="number" class="score-input" id="t-score-fb">
-                <input type="text" class="score-input" id="t-final-teamB" style="width:100px; font-size:12px;" placeholder="準決勝勝者2">
-            </div>
-        </div>
+
     </div>
 
     <!-- ☕️ 応援ボタン -->
@@ -340,13 +481,17 @@
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
                     <td>第${m.id}試合</td>
-                    <td>${teams[m.a]} vs ${teams[m.b]}</td>
+                    <td>
+                        <span class="team-name-cell" style="display:inline-block; width:70px; text-align:right;">${teams[m.a]}</span>
+                        <span style="color:var(--sub-text); font-size:11px;"> vs </span>
+                        <span class="team-name-cell" style="display:inline-block; width:70px; text-align:left;">${teams[m.b]}</span>
+                    </td>
                     <td>
                         <input type="number" class="score-input" id="s_${idx}_a" onchange="calculateRank()" min="0" placeholder="自">
                         -
                         <input type="number" class="score-input" id="s_${idx}_b" onchange="calculateRank()" min="0" placeholder="相">
                     </td>
-                    <td>${teams[m.ref]}</td>
+                    <td class="team-name-cell">${teams[m.ref]}</td>
                 `;
                 tbody.appendChild(tr);
             });
@@ -366,7 +511,6 @@
                 rank: 0
             }));
             
-            // 星取表用セルオブジェクト初期化 { symbol: '', score: '-' }
             let matrixData = Array(4).fill(null).map(() => 
                 Array(4).fill(null).map(() => ({ symbol: '', score: '-' }))
             );
@@ -422,7 +566,7 @@
                 }
             });
 
-            // 順位付けの計算（1. 勝ち点 ➔ 2. 自内野人数 ➔ 3. 直接対決）
+            // 順位付けの計算
             let sortedStats = [...stats].sort((a, b) => {
                 if (b.pts !== a.pts) return b.pts - a.pts;
                 if (b.myInfield !== a.myInfield) return b.myInfield - a.myInfield;
@@ -438,21 +582,21 @@
             // 星取表を描画
             renderMatrix(teams, matrixData, stats);
 
-            // 決勝トーナメントに順位チーム名を自動セット
+            // 決勝トーナメント（甲子園風表）に予選順位結果を反映
             document.getElementById('t-semi1-a').innerText = sortedStats[0].name;
             document.getElementById('t-semi1-b').innerText = sortedStats[3].name;
             document.getElementById('t-semi2-a').innerText = sortedStats[1].name;
             document.getElementById('t-semi2-b').innerText = sortedStats[2].name;
         }
 
-        // 星取表の描画関数（勝敗記号＋スコアの2段構造）
+        // 星取表の描画関数（チーム名幅固定指定）
         function renderMatrix(teams, matrixData, stats) {
             const thead = document.getElementById('matrix-header');
             const tbody = document.getElementById('matrix-body');
 
-            let headerHTML = '<th>チーム</th>';
+            let headerHTML = '<th style="width:85px;">チーム</th>';
             teams.forEach(t => {
-                headerHTML += `<th>${t}</th>`;
+                headerHTML += `<th class="team-name-cell">${t}</th>`;
             });
             headerHTML += `<th class="stats-hdr">勝</th><th class="stats-hdr">分</th><th class="stats-hdr">負</th><th class="stats-hdr">勝点</th><th class="stats-hdr">自内野</th><th class="stats-hdr">相内野</th><th class="rank-hdr">順位</th>`;
             thead.innerHTML = headerHTML;
@@ -460,7 +604,7 @@
             tbody.innerHTML = '';
             teams.forEach((tRow, rIdx) => {
                 const tr = document.createElement('tr');
-                let rowHTML = `<td style="font-weight:bold;">${tRow}</td>`;
+                let rowHTML = `<td class="team-name-cell">${tRow}</td>`;
                 
                 teams.forEach((tCol, cIdx) => {
                     if (rIdx === cIdx) {
