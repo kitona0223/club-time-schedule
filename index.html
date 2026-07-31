@@ -88,16 +88,22 @@
             background: var(--card-bg);
             border-radius: 8px;
             overflow: hidden;
-            font-size: 14px;
+            font-size: 13px;
         }
         th, td {
-            padding: 10px 6px;
+            padding: 8px 4px;
             border: 1px solid var(--border);
             text-align: center;
         }
         th {
             background: #1e293b;
             color: var(--sub-text);
+        }
+
+        /* 星取表専用スタイル */
+        .matrix-table td.self-cell {
+            background-color: #334155;
+            color: #64748b;
         }
 
         /* 得点入力用インプット */
@@ -185,7 +191,7 @@
     </div>
 
     <!-- 2. 予選リーグ スケジュール＆スコア入力 -->
-    <div class="section-title">📅 予選リーグ（総当たり戦）</div>
+    <div class="section-title">📅 予選リーグ（対戦順 & スコア入力）</div>
     <table>
         <thead>
             <tr>
@@ -200,7 +206,22 @@
         </tbody>
     </table>
 
-    <!-- 3. 予選順位表（自動計算） -->
+    <!-- 3. 予選対戦星取表（追加） -->
+    <div class="section-title">⚔️ 予選対戦表（星取表）</div>
+    <div style="overflow-x: auto;">
+        <table class="matrix-table">
+            <thead>
+                <tr id="matrix-header">
+                    <!-- JSで動的生成 -->
+                </tr>
+            </thead>
+            <tbody id="matrix-body">
+                <!-- JSで動的生成 -->
+            </tbody>
+        </table>
+    </div>
+
+    <!-- 4. 予選順位表（自動計算） -->
     <div class="section-title">📊 予選順位表（自動集計）</div>
     <table>
         <thead>
@@ -217,7 +238,7 @@
         </tbody>
     </table>
 
-    <!-- 4. 決勝トーナメント -->
+    <!-- 5. 決勝トーナメント -->
     <div class="section-title">🏆 決勝トーナメント</div>
     <div class="tournament-grid">
         <!-- 準決勝 1 -->
@@ -316,6 +337,14 @@
         function calculateRank() {
             const teams = getTeamNames();
             let stats = teams.map(name => ({ name, pts: 0, diff: 0, goals: 0 }));
+            
+            // 星取表用のスコア保管配列 (4x4)
+            let matrixScores = [
+                ['-', '-', '-', '-'],
+                ['-', '-', '-', '-'],
+                ['-', '-', '-', '-'],
+                ['-', '-', '-', '-']
+            ];
 
             schedulePattern.forEach((m, idx) => {
                 const saEl = document.getElementById(`s_${idx}_a`);
@@ -338,9 +367,17 @@
                         stats[m.a].pts += 1;
                         stats[m.b].pts += 1;
                     }
+
+                    // 星取表用データ更新
+                    matrixScores[m.a][m.b] = `${sa} - ${sb}`;
+                    matrixScores[m.b][m.a] = `${sb} - ${sa}`;
                 }
             });
 
+            // 星取表（マトリックス）の描画
+            renderMatrix(teams, matrixScores);
+
+            // 順位ソート：勝点 > 得失点差 > 総得点
             stats.sort((a, b) => b.pts - a.pts || b.diff - a.diff || b.goals - a.goals);
 
             const tbody = document.getElementById('league-rank');
@@ -361,6 +398,35 @@
             document.getElementById('t-semi1-b').innerText = stats[3].name;
             document.getElementById('t-semi2-a').innerText = stats[1].name;
             document.getElementById('t-semi2-b').innerText = stats[2].name;
+        }
+
+        // 星取表を描画する関数
+        function renderMatrix(teams, scores) {
+            const thead = document.getElementById('matrix-header');
+            const tbody = document.getElementById('matrix-body');
+
+            // ヘッダー生成
+            let headerHTML = '<th>チーム</th>';
+            teams.forEach(t => {
+                headerHTML += `<th>${t}</th>`;
+            });
+            thead.innerHTML = headerHTML;
+
+            // ボディ生成
+            tbody.innerHTML = '';
+            teams.forEach((tRow, rIdx) => {
+                const tr = document.createElement('tr');
+                let rowHTML = `<td style="font-weight:bold;">${tRow}</td>`;
+                teams.forEach((tCol, cIdx) => {
+                    if (rIdx === cIdx) {
+                        rowHTML += `<td class="self-cell">-</td>`;
+                    } else {
+                        rowHTML += `<td>${scores[rIdx][cIdx]}</td>`;
+                    }
+                });
+                tr.innerHTML = rowHTML;
+                tbody.appendChild(tr);
+            });
         }
 
         function updateAll() {
