@@ -109,6 +109,10 @@
             background-color: #0f172a;
             color: var(--accent2);
         }
+        .matrix-table th.rank-hdr {
+            background-color: #0f172a;
+            color: #fbd38d;
+        }
 
         /* 得点入力用インプット */
         .score-input {
@@ -123,10 +127,14 @@
             border-radius: 4px;
         }
 
-        /* 順位表のスタイル */
-        .rank-1 { color: #f6e05e; font-weight: bold; }
-        .rank-2 { color: #e2e8f0; font-weight: bold; }
-        .rank-3 { color: #ed8936; font-weight: bold; }
+        /* 順位表示のスタイル */
+        .rank-badge {
+            font-weight: bold;
+        }
+        .rank-badge.rank-1 { color: #f6e05e; font-size: 14px; }
+        .rank-badge.rank-2 { color: #e2e8f0; font-size: 14px; }
+        .rank-badge.rank-3 { color: #ed8936; font-size: 14px; }
+        .rank-badge.rank-4 { color: #94a3b8; font-size: 14px; }
 
         /* トーナメント表示 */
         .tournament-grid {
@@ -210,7 +218,7 @@
         </tbody>
     </table>
 
-    <!-- 3. 予選対戦星取表 -->
+    <!-- 3. 予選対戦星取表（右端に勝・分・負・勝点・自内野・相内野・順位） -->
     <div class="section-title">⚔️ 予選対戦表（星取表）</div>
     <div style="overflow-x: auto;">
         <table class="matrix-table">
@@ -225,29 +233,7 @@
         </table>
     </div>
 
-    <!-- 4. 予選順位表（自動計算） -->
-    <div class="section-title">📊 予選順位表（自動集計）</div>
-    <div style="overflow-x: auto;">
-        <table>
-            <thead>
-                <tr>
-                    <th>順位</th>
-                    <th>チーム名</th>
-                    <th>勝点</th>
-                    <th>勝</th>
-                    <th>分</th>
-                    <th>負</th>
-                    <th>自内野合計</th>
-                    <th>相手内野合計</th>
-                </tr>
-            </thead>
-            <tbody id="league-rank">
-                <!-- JSで動的計算 -->
-            </tbody>
-        </table>
-    </div>
-
-    <!-- 5. 決勝トーナメント -->
+    <!-- 4. 決勝トーナメント -->
     <div class="section-title">🏆 決勝トーナメント</div>
     <div class="tournament-grid">
         <!-- 準決勝 1 -->
@@ -345,7 +331,6 @@
 
         function calculateRank() {
             const teams = getTeamNames();
-            // 自チーム内野(myInfield), 相手チーム内野(oppInfield)を追加
             let stats = teams.map((name, idx) => ({ 
                 id: idx, 
                 name, 
@@ -354,7 +339,8 @@
                 draw: 0, 
                 lose: 0, 
                 myInfield: 0, 
-                oppInfield: 0 
+                oppInfield: 0,
+                rank: 0
             }));
             
             let matrixScores = [
@@ -364,7 +350,6 @@
                 ['-', '-', '-', '-']
             ];
 
-            // 対戦結果のマトリックス保管（直接対決判定用: headToHead[チームA][チームB] = スコア差）
             let headToHead = [
                 [0, 0, 0, 0],
                 [0, 0, 0, 0],
@@ -408,52 +393,34 @@
                 }
             });
 
-            // 星取表の描画
-            renderMatrix(teams, matrixScores, stats);
-
-            // 順位ソート処理
-            // 1. 勝ち点 (pts)
-            // 2. 自チーム内野人数合計 (myInfield)
-            // 3. 直接対決の勝者 (headToHead)
+            // 順位付けの計算
+            // 1. 勝ち点
+            // 2. 自チーム内野人数合計
+            // 3. 直接対決の勝者
             let sortedStats = [...stats].sort((a, b) => {
-                if (b.pts !== a.pts) {
-                    return b.pts - a.pts; // 1. 勝ち点
-                }
-                if (b.myInfield !== a.myInfield) {
-                    return b.myInfield - a.myInfield; // 2. 自チーム内野人数合計
-                }
-                // 3. 直接対決結果（aとbの対戦結果で判定）
+                if (b.pts !== a.pts) return b.pts - a.pts;
+                if (b.myInfield !== a.myInfield) return b.myInfield - a.myInfield;
                 const h2h = headToHead[a.id][b.id];
-                if (h2h !== 0) {
-                    return h2h > 0 ? -1 : 1; // aが勝っていればaを上位(-1)に
-                }
+                if (h2h !== 0) return h2h > 0 ? -1 : 1;
                 return 0;
             });
 
-            const tbody = document.getElementById('league-rank');
-            tbody.innerHTML = '';
+            // ソート順に基づいて各チームオブジェクトに rank を反映
             sortedStats.forEach((st, idx) => {
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td class="rank-${idx+1}">${idx + 1}位</td>
-                    <td>${st.name}</td>
-                    <td style="font-weight:bold; color:#fbd38d;">${st.pts}</td>
-                    <td>${st.win}</td>
-                    <td>${st.draw}</td>
-                    <td>${st.lose}</td>
-                    <td style="font-weight:bold; color:#35c9c1;">${st.myInfield}</td>
-                    <td>${st.oppInfield}</td>
-                `;
-                tbody.appendChild(tr);
+                stats[st.id].rank = idx + 1;
             });
 
+            // 星取表を描画（一番右に順位を表示）
+            renderMatrix(teams, matrixScores, stats);
+
+            // 決勝トーナメントに順位チーム名を自動セット
             document.getElementById('t-semi1-a').innerText = sortedStats[0].name;
             document.getElementById('t-semi1-b').innerText = sortedStats[3].name;
             document.getElementById('t-semi2-a').innerText = sortedStats[1].name;
             document.getElementById('t-semi2-b').innerText = sortedStats[2].name;
         }
 
-        // 星取表の描画関数
+        // 星取表の描画関数（一番右に「順位」セルを追加）
         function renderMatrix(teams, scores, stats) {
             const thead = document.getElementById('matrix-header');
             const tbody = document.getElementById('matrix-body');
@@ -462,7 +429,7 @@
             teams.forEach(t => {
                 headerHTML += `<th>${t}</th>`;
             });
-            headerHTML += `<th class="stats-hdr">勝</th><th class="stats-hdr">分</th><th class="stats-hdr">負</th><th class="stats-hdr">勝点</th><th class="stats-hdr">自内野</th><th class="stats-hdr">相内野</th>`;
+            headerHTML += `<th class="stats-hdr">勝</th><th class="stats-hdr">分</th><th class="stats-hdr">負</th><th class="stats-hdr">勝点</th><th class="stats-hdr">自内野</th><th class="stats-hdr">相内野</th><th class="rank-hdr">順位</th>`;
             thead.innerHTML = headerHTML;
 
             tbody.innerHTML = '';
@@ -486,6 +453,7 @@
                     <td style="font-weight:bold; color:#fbd38d;">${st.pts}</td>
                     <td style="font-weight:bold; color:#35c9c1;">${st.myInfield}</td>
                     <td>${st.oppInfield}</td>
+                    <td><span class="rank-badge rank-${st.rank}">${st.rank}位</span></td>
                 `;
 
                 tr.innerHTML = rowHTML;
