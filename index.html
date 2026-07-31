@@ -363,6 +363,8 @@
                     <option value="1">1巡（各1試合）</option>
                     <option value="2" selected>2巡（各2試合）</option>
                     <option value="3">3巡（各3試合）</option>
+                    <option value="4">4巡（各4試合）</option>
+                    <option value="5">5巡（各5試合）</option>
                 </select>
             </div>
             <div class="config-item">
@@ -517,7 +519,7 @@
             calculateAll();
         }
 
-        // 予選スケジュールの生成 (周回数に対応)
+        // 予選スケジュールの生成 (最大5周回に対応)
         function buildSchedule() {
             state.matches = [];
             let matchId = 0;
@@ -732,7 +734,7 @@
 
         // 全体の計算・自動更新処理
         function calculateAll() {
-            const targetMode = document.getElementById('cfg-target-target-round')?.value || document.getElementById('cfg-target-round').value;
+            const targetMode = document.getElementById('cfg-target-round').value;
 
             // 集計オブジェクト（通算用 & 最終巡用）
             let statsAll = state.teams.map((name, i) => ({ id: i, name, pts: 0, win: 0, draw: 0, lose: 0, myIn: 0, oppIn: 0 }));
@@ -780,7 +782,6 @@
                 const rEl = document.getElementById(`st_rank_${st.id}`);
                 if (rEl) {
                     if (targetMode === 'last') {
-                        // 最終巡のみ対象の場合は通算表に注釈を入れる
                         rEl.innerText = `${idx + 1}位(通算)`;
                     } else {
                         rEl.innerText = `${idx + 1}位`;
