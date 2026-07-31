@@ -105,6 +105,14 @@
             color: var(--sub-text);
         }
 
+        /* 試合カテゴリ別の行ハイライト */
+        tr.tournament-row {
+            background-color: rgba(53, 201, 193, 0.08);
+        }
+        tr.final-row {
+            background-color: rgba(251, 211, 141, 0.12);
+        }
+
         /* チーム名表示部分の固定セル幅指定 */
         .team-name-cell {
             width: 90px;
@@ -130,7 +138,7 @@
             width: 40px;
         }
 
-        /* 星取表のセル（勝負結果＋スコア） */
+        /* 星取表のセル */
         .cell-container {
             display: flex;
             flex-direction: column;
@@ -175,7 +183,7 @@
         .rank-badge.rank-4 { color: #94a3b8; font-size: 14px; }
 
         /* ----------------------------------------------------
-           🏆 甲子園風トーナメント表（自動計算連動）
+           🏆 甲子園風トーナメント表（図形表示）
         ---------------------------------------------------- */
         .tournament-wrapper {
             max-width: 850px;
@@ -263,18 +271,18 @@
             background-color: var(--line-color);
         }
 
-        .match-score-box {
+        .match-score-disp {
             background: #0f172a;
             border: 1px solid var(--accent);
             border-radius: 6px;
-            padding: 4px 8px;
+            padding: 4px 10px;
             margin-bottom: 10px;
-            display: flex;
-            align-items: center;
-            gap: 4px;
+            font-weight: bold;
+            font-size: 14px;
+            color: #fff;
             z-index: 2;
         }
-        .match-score-box.final {
+        .match-score-disp.final {
             border-color: #fbd38d;
         }
 
@@ -346,19 +354,81 @@
         <button class="btn-update" onclick="updateAll()">チーム名を確定して全体更新</button>
     </div>
 
-    <!-- 2. 予選リーグ スケジュール＆スコア入力 -->
-    <div class="section-title">📅 予選リーグ（内野人数スコア入力）</div>
+    <!-- 2. 全試合タイムスケジュール（予選＋トーナメント一体型） -->
+    <div class="section-title">📅 タイムスケジュール＆スコア入力</div>
     <table>
         <thead>
             <tr>
-                <th style="width: 50px;">試合</th>
+                <th style="width: 75px;">試合</th>
                 <th style="width: 180px;">対戦カード</th>
                 <th style="width: 110px;">スコア</th>
                 <th style="width: 90px;">審判</th>
             </tr>
         </thead>
-        <tbody id="league-schedule">
-            <!-- JSで動的生成 -->
+        <tbody>
+            <!-- 予選リーグ全6試合 -->
+            <tr>
+                <td>第1試合<br><span style="font-size:10px; color:var(--sub-text);">[予選]</span></td>
+                <td><span class="team-name-cell" style="display:inline-block; width:70px; text-align:right;" id="lbl_0_a">チームA</span><span style="color:var(--sub-text); font-size:11px;"> vs </span><span class="team-name-cell" style="display:inline-block; width:70px; text-align:left;" id="lbl_0_b">チームB</span></td>
+                <td><input type="number" class="score-input" id="s_0_a" onchange="calculateAll()" min="0" placeholder="自"> - <input type="number" class="score-input" id="s_0_b" onchange="calculateAll()" min="0" placeholder="相"></td>
+                <td class="team-name-cell" id="lbl_0_ref">チームC</td>
+            </tr>
+            <tr>
+                <td>第2試合<br><span style="font-size:10px; color:var(--sub-text);">[予選]</span></td>
+                <td><span class="team-name-cell" style="display:inline-block; width:70px; text-align:right;" id="lbl_1_a">チームC</span><span style="color:var(--sub-text); font-size:11px;"> vs </span><span class="team-name-cell" style="display:inline-block; width:70px; text-align:left;" id="lbl_1_b">チームD</span></td>
+                <td><input type="number" class="score-input" id="s_1_a" onchange="calculateAll()" min="0" placeholder="自"> - <input type="number" class="score-input" id="s_1_b" onchange="calculateAll()" min="0" placeholder="相"></td>
+                <td class="team-name-cell" id="lbl_1_ref">チームA</td>
+            </tr>
+            <tr>
+                <td>第3試合<br><span style="font-size:10px; color:var(--sub-text);">[予選]</span></td>
+                <td><span class="team-name-cell" style="display:inline-block; width:70px; text-align:right;" id="lbl_2_a">チームA</span><span style="color:var(--sub-text); font-size:11px;"> vs </span><span class="team-name-cell" style="display:inline-block; width:70px; text-align:left;" id="lbl_2_b">チームC</span></td>
+                <td><input type="number" class="score-input" id="s_2_a" onchange="calculateAll()" min="0" placeholder="自"> - <input type="number" class="score-input" id="s_2_b" onchange="calculateAll()" min="0" placeholder="相"></td>
+                <td class="team-name-cell" id="lbl_2_ref">チームB</td>
+            </tr>
+            <tr>
+                <td>第4試合<br><span style="font-size:10px; color:var(--sub-text);">[予選]</span></td>
+                <td><span class="team-name-cell" style="display:inline-block; width:70px; text-align:right;" id="lbl_3_a">チームB</span><span style="color:var(--sub-text); font-size:11px;"> vs </span><span class="team-name-cell" style="display:inline-block; width:70px; text-align:left;" id="lbl_3_b">チームD</span></td>
+                <td><input type="number" class="score-input" id="s_3_a" onchange="calculateAll()" min="0" placeholder="自"> - <input type="number" class="score-input" id="s_3_b" onchange="calculateAll()" min="0" placeholder="相"></td>
+                <td class="team-name-cell" id="lbl_3_ref">チームA</td>
+            </tr>
+            <tr>
+                <td>第5試合<br><span style="font-size:10px; color:var(--sub-text);">[予選]</span></td>
+                <td><span class="team-name-cell" style="display:inline-block; width:70px; text-align:right;" id="lbl_4_a">チームA</span><span style="color:var(--sub-text); font-size:11px;"> vs </span><span class="team-name-cell" style="display:inline-block; width:70px; text-align:left;" id="lbl_4_b">チームD</span></td>
+                <td><input type="number" class="score-input" id="s_4_a" onchange="calculateAll()" min="0" placeholder="自"> - <input type="number" class="score-input" id="s_4_b" onchange="calculateAll()" min="0" placeholder="相"></td>
+                <td class="team-name-cell" id="lbl_4_ref">チームC</td>
+            </tr>
+            <tr>
+                <td>第6試合<br><span style="font-size:10px; color:var(--sub-text);">[予選]</span></td>
+                <td><span class="team-name-cell" style="display:inline-block; width:70px; text-align:right;" id="lbl_5_a">チームB</span><span style="color:var(--sub-text); font-size:11px;"> vs </span><span class="team-name-cell" style="display:inline-block; width:70px; text-align:left;" id="lbl_5_b">チームC</span></td>
+                <td><input type="number" class="score-input" id="s_5_a" onchange="calculateAll()" min="0" placeholder="自"> - <input type="number" class="score-input" id="s_5_b" onchange="calculateAll()" min="0" placeholder="相"></td>
+                <td class="team-name-cell" id="lbl_5_ref">チームD</td>
+            </tr>
+
+            <!-- トーナメント試合 -->
+            <tr class="tournament-row">
+                <td>第7試合<br><span style="font-size:10px; color:var(--accent2);">[準決勝①]</span></td>
+                <td><span class="team-name-cell" style="display:inline-block; width:70px; text-align:right;" id="s1_a_name">予選1位</span><span style="color:var(--sub-text); font-size:11px;"> vs </span><span class="team-name-cell" style="display:inline-block; width:70px; text-align:left;" id="s1_b_name">予選4位</span></td>
+                <td><input type="number" class="score-input" id="t_s1_a" onchange="calculateAll()" min="0" placeholder="自"> - <input type="number" class="score-input" id="t_s1_b" onchange="calculateAll()" min="0" placeholder="相"></td>
+                <td>-</td>
+            </tr>
+            <tr class="tournament-row">
+                <td>第8試合<br><span style="font-size:10px; color:var(--accent2);">[準決勝②]</span></td>
+                <td><span class="team-name-cell" style="display:inline-block; width:70px; text-align:right;" id="s2_a_name">予選2位</span><span style="color:var(--sub-text); font-size:11px;"> vs </span><span class="team-name-cell" style="display:inline-block; width:70px; text-align:left;" id="s2_b_name">予選3位</span></td>
+                <td><input type="number" class="score-input" id="t_s2_a" onchange="calculateAll()" min="0" placeholder="自"> - <input type="number" class="score-input" id="t_s2_b" onchange="calculateAll()" min="0" placeholder="相"></td>
+                <td>-</td>
+            </tr>
+            <tr class="tournament-row">
+                <td>第9試合<br><span style="font-size:10px; color:#a0aec0;">[3位決定戦]</span></td>
+                <td><span class="team-name-cell" style="display:inline-block; width:70px; text-align:right;" id="th_a_name">準決敗者1</span><span style="color:var(--sub-text); font-size:11px;"> vs </span><span class="team-name-cell" style="display:inline-block; width:70px; text-align:left;" id="th_b_name">準決敗者2</span></td>
+                <td><input type="number" class="score-input" id="t_th_a" onchange="calculateAll()" min="0" placeholder="自"> - <input type="number" class="score-input" id="t_th_b" onchange="calculateAll()" min="0" placeholder="相"></td>
+                <td>-</td>
+            </tr>
+            <tr class="final-row">
+                <td>第10試合<br><span style="font-size:10px; color:#fbd38d; font-weight:bold;">[決勝戦]</span></td>
+                <td><span class="team-name-cell" style="display:inline-block; width:70px; text-align:right;" id="f_a_name">準決勝者1</span><span style="color:var(--sub-text); font-size:11px;"> vs </span><span class="team-name-cell" style="display:inline-block; width:70px; text-align:left;" id="f_b_name">準決勝者2</span></td>
+                <td><input type="number" class="score-input" id="t_f_a" onchange="calculateAll()" min="0" placeholder="自"> - <input type="number" class="score-input" id="t_f_b" onchange="calculateAll()" min="0" placeholder="相"></td>
+                <td>-</td>
+            </tr>
         </tbody>
     </table>
 
@@ -377,7 +447,7 @@
         </table>
     </div>
 
-    <!-- 4. 甲子園風 決勝トーナメント表（自動進出連動機能付き） -->
+    <!-- 4. 甲子園風 決勝トーナメント表（図形表示） -->
     <div class="section-title">🏆 決勝トーナメント表</div>
     <div class="tournament-wrapper">
         
@@ -389,11 +459,7 @@
                     <span class="t-team-label">準決勝1勝者</span>
                     <span class="t-team-name" id="t-final-teamA">-</span>
                 </div>
-                <div class="match-score-box final">
-                    <input type="number" class="score-input" id="t-score-fa" min="0" placeholder="-">
-                    <span style="font-size:12px; font-weight:bold; color:#fbd38d;">VS</span>
-                    <input type="number" class="score-input" id="t-score-fb" min="0" placeholder="-">
-                </div>
+                <div class="match-score-disp final" id="disp-final-score">- vs -</div>
                 <div class="t-team-node final-node">
                     <span class="t-team-label">準決勝2勝者</span>
                     <span class="t-team-name" id="t-final-teamB">-</span>
@@ -405,11 +471,7 @@
         <div class="tournament-tree">
             <!-- 左の山（準決勝1：1位 vs 4位） -->
             <div class="tree-half">
-                <div class="match-score-box">
-                    <input type="number" class="score-input" id="t-score-1a" onchange="updateTournament()" min="0" placeholder="-">
-                    <span style="font-size:11px;">VS</span>
-                    <input type="number" class="score-input" id="t-score-1b" onchange="updateTournament()" min="0" placeholder="-">
-                </div>
+                <div class="match-score-disp" id="disp-semi1-score">- vs -</div>
                 <div class="bracket-line"></div>
                 <div class="tree-teams">
                     <div class="t-team-node">
@@ -425,11 +487,7 @@
 
             <!-- 右の山（準決勝2：2位 vs 3位） -->
             <div class="tree-half">
-                <div class="match-score-box">
-                    <input type="number" class="score-input" id="t-score-2a" onchange="updateTournament()" min="0" placeholder="-">
-                    <span style="font-size:11px;">VS</span>
-                    <input type="number" class="score-input" id="t-score-2b" onchange="updateTournament()" min="0" placeholder="-">
-                </div>
+                <div class="match-score-disp" id="disp-semi2-score">- vs -</div>
                 <div class="bracket-line"></div>
                 <div class="tree-teams">
                     <div class="t-team-node">
@@ -452,11 +510,7 @@
                     <span class="t-team-label">準決勝1敗者</span>
                     <span class="t-team-name" id="t-3rd-teamA">-</span>
                 </div>
-                <div class="match-score-box" style="border-color: #a0aec0;">
-                    <input type="number" class="score-input" id="t-score-3a" min="0" placeholder="-">
-                    <span style="font-size:11px; color:#a0aec0;">VS</span>
-                    <input type="number" class="score-input" id="t-score-3b" min="0" placeholder="-">
-                </div>
+                <div class="match-score-disp" style="border-color: #a0aec0;" id="disp-3rd-score">- vs -</div>
                 <div class="t-team-node" style="width:105px;">
                     <span class="t-team-label">準決勝2敗者</span>
                     <span class="t-team-name" id="t-3rd-teamB">-</span>
@@ -492,32 +546,18 @@
             ];
         }
 
-        function renderSchedule() {
+        // 予選対戦カードの表示を更新
+        function updateLeagueLabels() {
             const teams = getTeamNames();
-            const tbody = document.getElementById('league-schedule');
-            tbody.innerHTML = '';
-
             schedulePattern.forEach((m, idx) => {
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td>第${m.id}試合</td>
-                    <td>
-                        <span class="team-name-cell" style="display:inline-block; width:70px; text-align:right;">${teams[m.a]}</span>
-                        <span style="color:var(--sub-text); font-size:11px;"> vs </span>
-                        <span class="team-name-cell" style="display:inline-block; width:70px; text-align:left;">${teams[m.b]}</span>
-                    </td>
-                    <td>
-                        <input type="number" class="score-input" id="s_${idx}_a" onchange="calculateRank()" min="0" placeholder="自">
-                        -
-                        <input type="number" class="score-input" id="s_${idx}_b" onchange="calculateRank()" min="0" placeholder="相">
-                    </td>
-                    <td class="team-name-cell">${teams[m.ref]}</td>
-                `;
-                tbody.appendChild(tr);
+                document.getElementById(`lbl_${idx}_a`).innerText = teams[m.a];
+                document.getElementById(`lbl_${idx}_b`).innerText = teams[m.b];
+                document.getElementById(`lbl_${idx}_ref`).innerText = teams[m.ref];
             });
         }
 
-        function calculateRank() {
+        // 全体のリアルタイム計算処理
+        function calculateAll() {
             const teams = getTeamNames();
             let stats = teams.map((name, idx) => ({ 
                 id: idx, 
@@ -536,12 +576,10 @@
             );
 
             let headToHead = [
-                [0, 0, 0, 0],
-                [0, 0, 0, 0],
-                [0, 0, 0, 0],
-                [0, 0, 0, 0]
+                [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]
             ];
 
+            // 1. 予選スコア計算
             schedulePattern.forEach((m, idx) => {
                 const saEl = document.getElementById(`s_${idx}_a`);
                 const sbEl = document.getElementById(`s_${idx}_b`);
@@ -564,21 +602,16 @@
                         stats[m.a].pts += 2;
                         stats[m.a].win += 1;
                         stats[m.b].lose += 1;
-                        symA = '〇';
-                        symB = '✕';
+                        symA = '〇'; symB = '✕';
                     } else if (sb > sa) {
                         stats[m.b].pts += 2;
                         stats[m.b].win += 1;
                         stats[m.a].lose += 1;
-                        symA = '✕';
-                        symB = '〇';
+                        symA = '✕'; symB = '〇';
                     } else {
-                        stats[m.a].pts += 1;
-                        stats[m.b].pts += 1;
-                        stats[m.a].draw += 1;
-                        stats[m.b].draw += 1;
-                        symA = '△';
-                        symB = '△';
+                        stats[m.a].pts += 1; stats[m.b].pts += 1;
+                        stats[m.a].draw += 1; stats[m.b].draw += 1;
+                        symA = '△'; symB = '△';
                     }
 
                     matrixData[m.a][m.b] = { symbol: symA, score: `${sa} - ${sb}` };
@@ -586,7 +619,7 @@
                 }
             });
 
-            // 順位付けの計算
+            // 予選順位ソート
             let sortedStats = [...stats].sort((a, b) => {
                 if (b.pts !== a.pts) return b.pts - a.pts;
                 if (b.myInfield !== a.myInfield) return b.myInfield - a.myInfield;
@@ -595,69 +628,77 @@
                 return 0;
             });
 
-            sortedStats.forEach((st, idx) => {
-                stats[st.id].rank = idx + 1;
-            });
+            sortedStats.forEach((st, idx) => { stats[st.id].rank = idx + 1; });
 
             // 星取表を描画
             renderMatrix(teams, matrixData, stats);
 
-            // 準決勝のチーム名を予選順位から自動セット
-            document.getElementById('t-semi1-a').innerText = sortedStats[0].name;
-            document.getElementById('t-semi1-b').innerText = sortedStats[3].name;
-            document.getElementById('t-semi2-a').innerText = sortedStats[1].name;
-            document.getElementById('t-semi2-b').innerText = sortedStats[2].name;
+            // 2. 準決勝対戦カード更新（予選順位反映）
+            const rank1 = sortedStats[0].name;
+            const rank2 = sortedStats[1].name;
+            const rank3 = sortedStats[2].name;
+            const rank4 = sortedStats[3].name;
 
-            // トーナメントの進出計算を実行
-            updateTournament();
-        }
+            document.getElementById('s1_a_name').innerText = rank1;
+            document.getElementById('s1_b_name').innerText = rank4;
+            document.getElementById('s2_a_name').innerText = rank2;
+            document.getElementById('s2_b_name').innerText = rank3;
 
-        // トーナメント（準決勝の入力に応じて決勝・3決定戦チームを判定）
-        function updateTournament() {
-            const semi1A = document.getElementById('t-semi1-a').innerText;
-            const semi1B = document.getElementById('t-semi1-b').innerText;
-            const semi2A = document.getElementById('t-semi2-a').innerText;
-            const semi2B = document.getElementById('t-semi2-b').innerText;
+            document.getElementById('t-semi1-a').innerText = rank1;
+            document.getElementById('t-semi1-b').innerText = rank4;
+            document.getElementById('t-semi2-a').innerText = rank2;
+            document.getElementById('t-semi2-b').innerText = rank3;
 
-            const s1a = document.getElementById('t-score-1a').value;
-            const s1b = document.getElementById('t-score-1b').value;
-            const s2a = document.getElementById('t-score-2a').value;
-            const s2b = document.getElementById('t-score-2b').value;
+            // 3. 準決勝スコアと勝者・敗者の判定
+            const ts1a = document.getElementById('t_s1_a').value;
+            const ts1b = document.getElementById('t_s1_b').value;
+            const ts2a = document.getElementById('t_s2_a').value;
+            const ts2b = document.getElementById('t_s2_b').value;
 
-            // 準決勝 1
-            if (s1a !== '' && s1b !== '') {
-                const numA = parseInt(s1a, 10);
-                const numB = parseInt(s1b, 10);
-                if (numA >= numB) {
-                    document.getElementById('t-final-teamA').innerText = semi1A;
-                    document.getElementById('t-3rd-teamA').innerText = semi1B;
+            document.getElementById('disp-semi1-score').innerText = (ts1a !== '' && ts1b !== '') ? `${ts1a} - ${ts1b}` : '- vs -';
+            document.getElementById('disp-semi2-score').innerText = (ts2a !== '' && ts2b !== '') ? `${ts2a} - ${ts2b}` : '- vs -';
+
+            let semi1Winner = '-', semi1Loser = '-';
+            let semi2Winner = '-', semi2Loser = '-';
+
+            if (ts1a !== '' && ts1b !== '') {
+                if (parseInt(ts1a, 10) >= parseInt(ts1b, 10)) {
+                    semi1Winner = rank1; semi1Loser = rank4;
                 } else {
-                    document.getElementById('t-final-teamA').innerText = semi1B;
-                    document.getElementById('t-3rd-teamA').innerText = semi1A;
+                    semi1Winner = rank4; semi1Loser = rank1;
                 }
-            } else {
-                document.getElementById('t-final-teamA').innerText = '-';
-                document.getElementById('t-3rd-teamA').innerText = '-';
             }
 
-            // 準決勝 2
-            if (s2a !== '' && s2b !== '') {
-                const numA = parseInt(s2a, 10);
-                const numB = parseInt(s2b, 10);
-                if (numA >= numB) {
-                    document.getElementById('t-final-teamB').innerText = semi2A;
-                    document.getElementById('t-3rd-teamB').innerText = semi2B;
+            if (ts2a !== '' && ts2b !== '') {
+                if (parseInt(ts2a, 10) >= parseInt(ts2b, 10)) {
+                    semi2Winner = rank2; semi2Loser = rank3;
                 } else {
-                    document.getElementById('t-final-teamB').innerText = semi2B;
-                    document.getElementById('t-3rd-teamB').innerText = semi2A;
+                    semi2Winner = rank3; semi2Loser = rank2;
                 }
-            } else {
-                document.getElementById('t-final-teamB').innerText = '-';
-                document.getElementById('t-3rd-teamB').innerText = '-';
             }
+
+            // 決勝・3位決定戦の対戦カード表示更新
+            document.getElementById('th_a_name').innerText = semi1Loser;
+            document.getElementById('th_b_name').innerText = semi2Loser;
+            document.getElementById('t-3rd-teamA').innerText = semi1Loser;
+            document.getElementById('t-3rd-teamB').innerText = semi2Loser;
+
+            document.getElementById('f_a_name').innerText = semi1Winner;
+            document.getElementById('f_b_name').innerText = semi2Winner;
+            document.getElementById('t-final-teamA').innerText = semi1Winner;
+            document.getElementById('t-final-teamB').innerText = semi2Winner;
+
+            // 4. 決勝・3位決定戦のスコア更新
+            const ttha = document.getElementById('t_th_a').value;
+            const tthb = document.getElementById('t_th_b').value;
+            const tfa = document.getElementById('t_f_a').value;
+            const tfb = document.getElementById('t_f_b').value;
+
+            document.getElementById('disp-3rd-score').innerText = (ttha !== '' && tthb !== '') ? `${ttha} - ${tthb}` : '- vs -';
+            document.getElementById('disp-final-score').innerText = (tfa !== '' && tfb !== '') ? `${tfa} - ${tfb}` : '- vs -';
         }
 
-        // 星取表の描画関数
+        // 星取表を描画
         function renderMatrix(teams, matrixData, stats) {
             const thead = document.getElementById('matrix-header');
             const tbody = document.getElementById('matrix-body');
@@ -715,8 +756,8 @@
         }
 
         function updateAll() {
-            renderSchedule();
-            calculateRank();
+            updateLeagueLabels();
+            calculateAll();
         }
 
         updateAll();
