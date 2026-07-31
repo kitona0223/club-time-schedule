@@ -91,7 +91,7 @@
             border-radius: 8px;
             overflow: hidden;
             font-size: 13px;
-            table-layout: fixed; /* 各列の幅を均等・固定にする */
+            table-layout: fixed;
         }
         th, td {
             padding: 6px 4px;
@@ -175,7 +175,7 @@
         .rank-badge.rank-4 { color: #94a3b8; font-size: 14px; }
 
         /* ----------------------------------------------------
-           🏆 甲子園風トーナメント表（図形レイアウト）
+           🏆 甲子園風トーナメント表（自動計算連動）
         ---------------------------------------------------- */
         .tournament-wrapper {
             max-width: 850px;
@@ -192,10 +192,9 @@
             align-items: flex-end;
             min-width: 600px;
             gap: 40px;
-            padding-top: 20px;
+            padding-top: 10px;
         }
         
-        /* 半分の山（準決勝1ブロック、準決勝2ブロック） */
         .tree-half {
             display: flex;
             flex-direction: column;
@@ -203,14 +202,12 @@
             position: relative;
         }
 
-        /* ボトムチーム（予選チームペア） */
         .tree-teams {
             display: flex;
             gap: 60px;
             position: relative;
         }
 
-        /* チームノード（枠） */
         .t-team-node {
             width: 100px;
             background: #0f172a;
@@ -223,6 +220,10 @@
             gap: 4px;
             position: relative;
             z-index: 2;
+        }
+        .t-team-node.final-node {
+            width: 120px;
+            border-color: #fbd38d;
         }
         .t-team-label {
             font-size: 11px;
@@ -242,7 +243,6 @@
             text-overflow: ellipsis;
         }
 
-        /* 1本足・山型線の表現 */
         .bracket-line {
             width: 100%;
             height: 30px;
@@ -252,7 +252,6 @@
             margin-top: -1px;
             position: relative;
         }
-        /* 山の中央から上へ伸びる縦線 */
         .bracket-line::after {
             content: '';
             position: absolute;
@@ -264,7 +263,6 @@
             background-color: var(--line-color);
         }
 
-        /* 試合スコア入力用ミニカード */
         .match-score-box {
             background: #0f172a;
             border: 1px solid var(--accent);
@@ -280,12 +278,17 @@
             border-color: #fbd38d;
         }
 
-        /* 決勝戦エリア */
         .final-center {
             display: flex;
             flex-direction: column;
             align-items: center;
             margin-bottom: 20px;
+        }
+        .final-teams-flex {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-top: 8px;
         }
         .trophy-title {
             font-size: 14px;
@@ -294,7 +297,6 @@
             margin-bottom: 6px;
         }
 
-        /* 3位決定戦別枠カード */
         .third-place-box {
             margin-top: 25px;
             padding-top: 15px;
@@ -304,7 +306,7 @@
             align-items: center;
         }
 
-        /* ☕️ 投げ銭・応援ボタン */
+        /* ☕️ 応援ボタン */
         .bmc-container {
             position: fixed;
             bottom: 15px;
@@ -375,17 +377,27 @@
         </table>
     </div>
 
-    <!-- 4. 甲子園風 決勝トーナメント表（図形表現） -->
+    <!-- 4. 甲子園風 決勝トーナメント表（自動進出連動機能付き） -->
     <div class="section-title">🏆 決勝トーナメント表</div>
     <div class="tournament-wrapper">
         
         <!-- 頂点：決勝戦 -->
         <div class="final-center">
             <div class="trophy-title">🥇 決勝戦</div>
-            <div class="match-score-box final">
-                <input type="number" class="score-input" id="t-score-fa" placeholder="-">
-                <span style="font-size:12px; font-weight:bold; color:#fbd38d;">VS</span>
-                <input type="number" class="score-input" id="t-score-fb" placeholder="-">
+            <div class="final-teams-flex">
+                <div class="t-team-node final-node">
+                    <span class="t-team-label">準決勝1勝者</span>
+                    <span class="t-team-name" id="t-final-teamA">-</span>
+                </div>
+                <div class="match-score-box final">
+                    <input type="number" class="score-input" id="t-score-fa" min="0" placeholder="-">
+                    <span style="font-size:12px; font-weight:bold; color:#fbd38d;">VS</span>
+                    <input type="number" class="score-input" id="t-score-fb" min="0" placeholder="-">
+                </div>
+                <div class="t-team-node final-node">
+                    <span class="t-team-label">準決勝2勝者</span>
+                    <span class="t-team-name" id="t-final-teamB">-</span>
+                </div>
             </div>
         </div>
 
@@ -394,9 +406,9 @@
             <!-- 左の山（準決勝1：1位 vs 4位） -->
             <div class="tree-half">
                 <div class="match-score-box">
-                    <input type="number" class="score-input" id="t-score-1a" placeholder="-">
+                    <input type="number" class="score-input" id="t-score-1a" onchange="updateTournament()" min="0" placeholder="-">
                     <span style="font-size:11px;">VS</span>
-                    <input type="number" class="score-input" id="t-score-1b" placeholder="-">
+                    <input type="number" class="score-input" id="t-score-1b" onchange="updateTournament()" min="0" placeholder="-">
                 </div>
                 <div class="bracket-line"></div>
                 <div class="tree-teams">
@@ -414,9 +426,9 @@
             <!-- 右の山（準決勝2：2位 vs 3位） -->
             <div class="tree-half">
                 <div class="match-score-box">
-                    <input type="number" class="score-input" id="t-score-2a" placeholder="-">
+                    <input type="number" class="score-input" id="t-score-2a" onchange="updateTournament()" min="0" placeholder="-">
                     <span style="font-size:11px;">VS</span>
-                    <input type="number" class="score-input" id="t-score-2b" placeholder="-">
+                    <input type="number" class="score-input" id="t-score-2b" onchange="updateTournament()" min="0" placeholder="-">
                 </div>
                 <div class="bracket-line"></div>
                 <div class="tree-teams">
@@ -432,15 +444,23 @@
             </div>
         </div>
 
-        <!-- 3位決定戦（別枠表示） -->
+        <!-- 3位決定戦 -->
         <div class="third-place-box">
             <div style="font-size:13px; font-weight:bold; color:#a0aec0; margin-bottom: 6px;">🥉 3位決定戦</div>
-            <div class="match-score-box" style="border-color: #a0aec0;">
-                <input type="text" class="score-input" id="t-3rd-teamA" style="width:75px; font-size:11px;" placeholder="準決勝敗者1">
-                <input type="number" class="score-input" id="t-score-3a" placeholder="-">
-                <span style="font-size:11px; color:#a0aec0;">VS</span>
-                <input type="number" class="score-input" id="t-score-3b" placeholder="-">
-                <input type="text" class="score-input" id="t-3rd-teamB" style="width:75px; font-size:11px;" placeholder="準決勝敗者2">
+            <div class="final-teams-flex">
+                <div class="t-team-node" style="width:105px;">
+                    <span class="t-team-label">準決勝1敗者</span>
+                    <span class="t-team-name" id="t-3rd-teamA">-</span>
+                </div>
+                <div class="match-score-box" style="border-color: #a0aec0;">
+                    <input type="number" class="score-input" id="t-score-3a" min="0" placeholder="-">
+                    <span style="font-size:11px; color:#a0aec0;">VS</span>
+                    <input type="number" class="score-input" id="t-score-3b" min="0" placeholder="-">
+                </div>
+                <div class="t-team-node" style="width:105px;">
+                    <span class="t-team-label">準決勝2敗者</span>
+                    <span class="t-team-name" id="t-3rd-teamB">-</span>
+                </div>
             </div>
         </div>
 
@@ -582,14 +602,62 @@
             // 星取表を描画
             renderMatrix(teams, matrixData, stats);
 
-            // 決勝トーナメント（甲子園風表）に予選順位結果を反映
+            // 準決勝のチーム名を予選順位から自動セット
             document.getElementById('t-semi1-a').innerText = sortedStats[0].name;
             document.getElementById('t-semi1-b').innerText = sortedStats[3].name;
             document.getElementById('t-semi2-a').innerText = sortedStats[1].name;
             document.getElementById('t-semi2-b').innerText = sortedStats[2].name;
+
+            // トーナメントの進出計算を実行
+            updateTournament();
         }
 
-        // 星取表の描画関数（チーム名幅固定指定）
+        // トーナメント（準決勝の入力に応じて決勝・3決定戦チームを判定）
+        function updateTournament() {
+            const semi1A = document.getElementById('t-semi1-a').innerText;
+            const semi1B = document.getElementById('t-semi1-b').innerText;
+            const semi2A = document.getElementById('t-semi2-a').innerText;
+            const semi2B = document.getElementById('t-semi2-b').innerText;
+
+            const s1a = document.getElementById('t-score-1a').value;
+            const s1b = document.getElementById('t-score-1b').value;
+            const s2a = document.getElementById('t-score-2a').value;
+            const s2b = document.getElementById('t-score-2b').value;
+
+            // 準決勝 1
+            if (s1a !== '' && s1b !== '') {
+                const numA = parseInt(s1a, 10);
+                const numB = parseInt(s1b, 10);
+                if (numA >= numB) {
+                    document.getElementById('t-final-teamA').innerText = semi1A;
+                    document.getElementById('t-3rd-teamA').innerText = semi1B;
+                } else {
+                    document.getElementById('t-final-teamA').innerText = semi1B;
+                    document.getElementById('t-3rd-teamA').innerText = semi1A;
+                }
+            } else {
+                document.getElementById('t-final-teamA').innerText = '-';
+                document.getElementById('t-3rd-teamA').innerText = '-';
+            }
+
+            // 準決勝 2
+            if (s2a !== '' && s2b !== '') {
+                const numA = parseInt(s2a, 10);
+                const numB = parseInt(s2b, 10);
+                if (numA >= numB) {
+                    document.getElementById('t-final-teamB').innerText = semi2A;
+                    document.getElementById('t-3rd-teamB').innerText = semi2B;
+                } else {
+                    document.getElementById('t-final-teamB').innerText = semi2B;
+                    document.getElementById('t-3rd-teamB').innerText = semi2A;
+                }
+            } else {
+                document.getElementById('t-final-teamB').innerText = '-';
+                document.getElementById('t-3rd-teamB').innerText = '-';
+            }
+        }
+
+        // 星取表の描画関数
         function renderMatrix(teams, matrixData, stats) {
             const thead = document.getElementById('matrix-header');
             const tbody = document.getElementById('matrix-body');
