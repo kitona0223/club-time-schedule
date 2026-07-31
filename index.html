@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CLUB TIME SCHEDULE</title>
+    <link rel="apple-touch-icon" href="icon.png">
+    <style>
+        :root {
+            --bg: #0f172a;
+            --card-bg: #1e293b;
+            --accent: #ff7a3d;
+            --accent2: #35c9c1;
+            --text: #f8fafc;
+            --sub-text: #94a3b8;
+            --border: #334155;
+        }
+        * { box-sizing: border-box; }
+        body {
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            margin: 0;
+            padding: 15px;
+            background-color: var(--bg);
+            color: var(--text);
+            text-align: center;
+        }
+        h1 {
+            font-size: 22px;
+            color: #fbd38d;
+            margin-bottom: 15px;
+            letter-spacing: 2px;
+        }
+
+        /* チーム名設定エリア */
+        .setup-card {
+            background: var(--card-bg);
+            padding: 15px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            max-width: 600px;
+            margin: 0 auto 20px auto;
+        }
+        .setup-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        .setup-grid input {
+            padding: 8px;
+            border-radius: 6px;
+            border: 1px solid var(--border);
+            background: #0f172a;
+            color: white;
+            text-align: center;
+            font-weight: bold;
+        }
+        .btn-update {
+            width: 100%;
+            padding: 10px;
+            background: #3182ce;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        /* セクション見出し */
+        .section-title {
+            font-size: 18px;
+            color: var(--accent2);
+            margin: 25px 0 10px 0;
+            text-align: left;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+            border-left: 4px solid var(--accent2);
+            padding-left: 8px;
+        }
+
+        /* テーブル共通設定 */
+        table {
+            width: 100%;
+            max-width: 800px;
+            margin: 0 auto;
+            border-collapse: collapse;
+            background: var(--card-bg);
+            border-radius: 8px;
+            overflow: hidden;
+            font-size: 14px;
+        }
+        th, td {
+            padding: 10px 6px;
+            border: 1px solid var(--border);
+            text-align: center;
+        }
+        th {
+            background: #1e293b;
+            color: var(--sub-text);
+        }
+
+        /* 得点入力用インプット */
+        .score-input {
+            width: 45px;
+            padding: 5px;
+            text-align: center;
+            background: #0f172a;
+            border: 1px solid var(--border);
+            color: white;
+            font-weight: bold;
+            font-size: 16px;
+            border-radius: 4px;
+        }
+
+        /* 順位表のスタイル */
+        .rank-1 { color: #f6e05e; font-weight: bold; }
+        .rank-2 { color: #e2e8f0; font-weight: bold; }
+        .rank-3 { color: #ed8936; font-weight: bold; }
+
+        /* トーナメント表示 */
+        .tournament-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .t-match-card {
+            background: var(--card-bg);
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+        }
+        .t-match-title {
+            font-size: 13px;
+            color: var(--accent);
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+        .t-flex {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+        }
+
+        /* ☕️ 投げ銭・応援ボタン */
+        .bmc-container {
+            position: fixed;
+            bottom: 15px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 9999;
+        }
+        .bmc-button {
+            display: inline-block;
+            background-color: #ffdd00;
+            color: #000000;
+            font-weight: bold;
+            font-size: 13px;
+            padding: 8px 16px;
+            border-radius: 20px;
+            text-decoration: none;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            white-space: nowrap;
+        }
+        @media (orientation: landscape) {
+            .bmc-container { display: none !important; }
+        }
+    </style>
+</head>
+<body>
+
+    <h1>🤾‍♂️ CLUB TIME SCHEDULE ⏱️</h1>
+
+    <!-- 1. チーム名設定 -->
+    <div class="setup-card">
+        <div class="setup-grid">
+            <input type="text" id="t1" value="チームA">
+            <input type="text" id="t2" value="チームB">
+            <input type="text" id="t3" value="チームC">
+            <input type="text" id="t4" value="チームD">
+        </div>
+        <button class="btn-update" onclick="updateAll()">チーム名を確定して全体更新</button>
+    </div>
+
+    <!-- 2. 予選リーグ スケジュール＆スコア入力 -->
+    <div class="section-title">📅 予選リーグ（総当たり戦）</div>
+    <table>
+        <thead>
+            <tr>
+                <th>試合</th>
+                <th>対戦カード</th>
+                <th>スコア</th>
+                <th>審判</th>
+            </tr>
+        </thead>
+        <tbody id="league-schedule">
+            <!-- JSで動的生成 -->
+        </tbody>
+    </table>
+
+    <!-- 3. 予選順位表（自動計算） -->
+    <div class="section-title">📊 予選順位表（自動集計）</div>
+    <table>
+        <thead>
+            <tr>
+                <th>順位</th>
+                <th>チーム名</th>
+                <th>勝点</th>
+                <th>得失差</th>
+                <th>総得点</th>
+            </tr>
+        </thead>
+        <tbody id="league-rank">
+            <!-- JSで動的計算 -->
+        </tbody>
+    </table>
+
+    <!-- 4. 決勝トーナメント -->
+    <div class="section-title">🏆 決勝トーナメント</div>
+    <div class="tournament-grid">
+        <!-- 準決勝 1 -->
+        <div class="t-match-card">
+            <div class="t-match-title">準決勝 第1試合（予選1位 vs 予選4位）</div>
+            <div class="t-flex">
+                <span id="t-semi1-a">1位</span>
+                <input type="number" class="score-input" id="t-score-1a">
+                <span>VS</span>
+                <input type="number" class="score-input" id="t-score-1b">
+                <span id="t-semi1-b">4位</span>
+            </div>
+        </div>
+        <!-- 準決勝 2 -->
+        <div class="t-match-card">
+            <div class="t-match-title">準決勝 第2試合（予選2位 vs 予選3位）</div>
+            <div class="t-flex">
+                <span id="t-semi2-a">2位</span>
+                <input type="number" class="score-input" id="t-score-2a">
+                <span>VS</span>
+                <input type="number" class="score-input" id="t-score-2b">
+                <span id="t-semi2-b">3位</span>
+            </div>
+        </div>
+        <!-- 3位決定戦 -->
+        <div class="t-match-card" style="border-color: #a0aec0;">
+            <div class="t-match-title" style="color: #a0aec0;">🥉 3位決定戦</div>
+            <div class="t-flex">
+                <input type="text" class="score-input" id="t-3rd-teamA" style="width:100px; font-size:12px;" placeholder="準決勝敗者1">
+                <input type="number" class="score-input" id="t-score-3a">
+                <span>VS</span>
+                <input type="number" class="score-input" id="t-score-3b">
+                <input type="text" class="score-input" id="t-3rd-teamB" style="width:100px; font-size:12px;" placeholder="準決勝敗者2">
+            </div>
+        </div>
+        <!-- 決勝戦 -->
+        <div class="t-match-card" style="border-color: #f6e05e;">
+            <div class="t-match-title" style="color: #f6e05e;">🥇 決勝戦</div>
+            <div class="t-flex">
+                <input type="text" class="score-input" id="t-final-teamA" style="width:100px; font-size:12px;" placeholder="準決勝勝者1">
+                <input type="number" class="score-input" id="t-score-fa">
+                <span>VS</span>
+                <input type="number" class="score-input" id="t-score-fb">
+                <input type="text" class="score-input" id="t-final-teamB" style="width:100px; font-size:12px;" placeholder="準決勝勝者2">
+            </div>
+        </div>
+    </div>
+
+    <!-- ☕️ 応援ボタン -->
+    <div class="bmc-container">
+        <a href="https://www.buymeacoffee.com/ororon" target="_blank" rel="noopener noreferrer" class="bmc-button">
+            ☕️ 開発者を応援する
+        </a>
+    </div>
+
+    <script>
+        const schedulePattern = [
+            { id: 1, a: 0, b: 1, ref: 2 },
+            { id: 2, a: 2, b: 3, ref: 0 },
+            { id: 3, a: 0, b: 2, ref: 1 },
+            { id: 4, a: 1, b: 3, ref: 0 },
+            { id: 5, a: 0, b: 3, ref: 2 },
+            { id: 6, a: 1, b: 2, ref: 3 }
+        ];
+
+        function getTeamNames() {
+            return [
+                document.getElementById('t1').value || 'チームA',
+                document.getElementById('t2').value || 'チームB',
+                document.getElementById('t3').value || 'チームC',
+                document.getElementById('t4').value || 'チームD'
+            ];
+        }
+
+        function renderSchedule() {
+            const teams = getTeamNames();
+            const tbody = document.getElementById('league-schedule');
+            tbody.innerHTML = '';
+
+            schedulePattern.forEach((m, idx) => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>第${m.id}試合</td>
+                    <td>${teams[m.a]} vs ${teams[m.b]}</td>
+                    <td>
+                        <input type="number" class="score-input" id="s_${idx}_a" onchange="calculateRank()" min="0">
+                        -
+                        <input type="number" class="score-input" id="s_${idx}_b" onchange="calculateRank()" min="0">
+                    </td>
+                    <td>${teams[m.ref]}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function calculateRank() {
+            const teams = getTeamNames();
+            let stats = teams.map(name => ({ name, pts: 0, diff: 0, goals: 0 }));
+
+            schedulePattern.forEach((m, idx) => {
+                const saEl = document.getElementById(`s_${idx}_a`);
+                const sbEl = document.getElementById(`s_${idx}_b`);
+
+                if (saEl && sbEl && saEl.value !== '' && sbEl.value !== '') {
+                    const sa = parseInt(saEl.value, 10);
+                    const sb = parseInt(sbEl.value, 10);
+
+                    stats[m.a].goals += sa;
+                    stats[m.b].goals += sb;
+                    stats[m.a].diff += (sa - sb);
+                    stats[m.b].diff += (sb - sa);
+
+                    if (sa > sb) {
+                        stats[m.a].pts += 3;
+                    } else if (sb > sa) {
+                        stats[m.b].pts += 3;
+                    } else {
+                        stats[m.a].pts += 1;
+                        stats[m.b].pts += 1;
+                    }
+                }
+            });
+
+            stats.sort((a, b) => b.pts - a.pts || b.diff - a.diff || b.goals - a.goals);
+
+            const tbody = document.getElementById('league-rank');
+            tbody.innerHTML = '';
+            stats.forEach((st, idx) => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td class="rank-${idx+1}">${idx + 1}位</td>
+                    <td>${st.name}</td>
+                    <td>${st.pts}</td>
+                    <td>${st.diff > 0 ? '+' + st.diff : st.diff}</td>
+                    <td>${st.goals}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            document.getElementById('t-semi1-a').innerText = stats[0].name;
+            document.getElementById('t-semi1-b').innerText = stats[3].name;
+            document.getElementById('t-semi2-a').innerText = stats[1].name;
+            document.getElementById('t-semi2-b').innerText = stats[2].name;
+        }
+
+        function updateAll() {
+            renderSchedule();
+            calculateRank();
+        }
+
+        updateAll();
+    </script>
+</body>
+</html>
