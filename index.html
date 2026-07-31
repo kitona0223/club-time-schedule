@@ -14,6 +14,7 @@
             --sub-text: #94a3b8;
             --border: #334155;
             --gold: #fbd38d;
+            --line-color: #64748b;
         }
         * { box-sizing: border-box; }
         body {
@@ -51,7 +52,7 @@
         }
         .config-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
             gap: 12px;
             margin-bottom: 15px;
         }
@@ -176,11 +177,13 @@
         .win { color: var(--gold); font-weight: bold; }
         .draw { color: #94a3b8; }
         .lose { color: #f87171; }
+        .stats-hdr { background-color: #0f172a; color: var(--accent2); width: 32px; }
+        .rank-hdr { background-color: #0f172a; color: var(--gold); width: 40px; }
 
         /* トーナメント進行カードリスト */
         .tourn-card-list {
             max-width: 850px;
-            margin: 0 auto;
+            margin: 0 auto 20px auto;
             display: flex;
             flex-direction: column;
             gap: 10px;
@@ -218,6 +221,120 @@
             border-radius: 6px;
         }
 
+        /* 🏆 甲子園風トーナメント表（図形表示） */
+        .tournament-wrapper {
+            max-width: 850px;
+            margin: 0 auto;
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 20px;
+            overflow-x: auto;
+        }
+        .tournament-tree {
+            display: flex;
+            justify-content: center;
+            align-items: flex-end;
+            min-width: 500px;
+            gap: 40px;
+            padding-top: 10px;
+        }
+        .tree-half {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+        }
+        .tree-teams {
+            display: flex;
+            gap: 40px;
+            position: relative;
+        }
+        .t-team-node {
+            width: 100px;
+            background: #0f172a;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 6px 4px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            z-index: 2;
+        }
+        .t-team-node.final-node {
+            width: 110px;
+            border-color: var(--gold);
+        }
+        .t-team-label {
+            font-size: 10px;
+            color: var(--sub-text);
+            width: 100%;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .t-team-name {
+            font-size: 12px;
+            font-weight: bold;
+            color: #fff;
+            width: 100%;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .bracket-line {
+            width: 100%;
+            height: 25px;
+            border-top: 3px solid var(--line-color);
+            border-left: 3px solid var(--line-color);
+            border-right: 3px solid var(--line-color);
+            margin-top: -1px;
+            position: relative;
+        }
+        .bracket-line::after {
+            content: '';
+            position: absolute;
+            top: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 3px;
+            height: 20px;
+            background-color: var(--line-color);
+        }
+        .match-score-disp {
+            background: #0f172a;
+            border: 1px solid var(--accent);
+            border-radius: 6px;
+            padding: 4px 10px;
+            margin-bottom: 8px;
+            font-weight: bold;
+            font-size: 12px;
+            color: #fff;
+            z-index: 2;
+            white-space: nowrap;
+        }
+        .match-score-disp.final {
+            border-color: var(--gold);
+        }
+        .final-center {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        .final-teams-flex {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-top: 6px;
+        }
+        .trophy-title {
+            font-size: 13px;
+            font-weight: bold;
+            color: var(--gold);
+            margin-bottom: 4px;
+        }
     </style>
 </head>
 <body>
@@ -255,17 +372,11 @@
                 </select>
             </div>
             <div class="config-item">
-                <label>トーナメント進出</label>
-                <select id="cfg-advance" onchange="buildApp()">
-                    <option value="all">全チーム進出</option>
-                    <option value="top2">上位2チーム進出 (または各1位)</option>
-                </select>
-            </div>
-            <div class="config-item">
-                <label>トーナメント試合形式</label>
-                <select id="cfg-sets" onchange="buildApp()">
-                    <option value="1">1セットマッチ</option>
-                    <option value="3">3セットマッチ (2セット先取)</option>
+                <label>3セットマッチ採用条件</label>
+                <select id="cfg-sets-rule" onchange="buildApp()">
+                    <option value="semi">準決勝から (準決勝・決勝)</option>
+                    <option value="final">決勝のみ</option>
+                    <option value="none">全試合 1セットマッチ</option>
                 </select>
             </div>
         </div>
@@ -300,18 +411,72 @@
         <!-- JSで動的生成 -->
     </div>
 
-    <!-- 決勝トーナメントエリア -->
-    <div class="section-title">🏆 決勝トーナメント</div>
+    <!-- 決勝トーナメント入力エリア -->
+    <div class="section-title">📝 決勝トーナメント スコア入力</div>
     <div id="tournament-container" class="tourn-card-list">
         <!-- JSで動的生成 -->
+    </div>
+
+    <!-- 🏆 甲子園風 決勝トーナメント表（図形表示） -->
+    <div class="section-title">🏆 決勝トーナメント表（図）</div>
+    <div class="tournament-wrapper">
+        <!-- 頂点：決勝戦 -->
+        <div class="final-center">
+            <div class="trophy-title">🥇 決勝戦</div>
+            <div class="final-teams-flex">
+                <div class="t-team-node final-node">
+                    <span class="t-team-label" id="t-final-lblA">準決勝1勝者</span>
+                    <span class="t-team-name" id="t-final-teamA">-</span>
+                </div>
+                <div class="match-score-disp final" id="disp-final-score">- vs -</div>
+                <div class="t-team-node final-node">
+                    <span class="t-team-label" id="t-final-lblB">準決勝2勝者</span>
+                    <span class="t-team-name" id="t-final-teamB">-</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- トーナメント山図 -->
+        <div class="tournament-tree">
+            <!-- 左の山（準決勝1） -->
+            <div class="tree-half">
+                <div class="match-score-disp" id="disp-semi1-score">- vs -</div>
+                <div class="bracket-line"></div>
+                <div class="tree-teams">
+                    <div class="t-team-node">
+                        <span class="t-team-label" id="t-semi1-lblA">予選1位</span>
+                        <span class="t-team-name" id="t-semi1-a">-</span>
+                    </div>
+                    <div class="t-team-node">
+                        <span class="t-team-label" id="t-semi1-lblB">予選4位</span>
+                        <span class="t-team-name" id="t-semi1-b">-</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 右の山（準決勝2） -->
+            <div class="tree-half">
+                <div class="match-score-disp" id="disp-semi2-score">- vs -</div>
+                <div class="bracket-line"></div>
+                <div class="tree-teams">
+                    <div class="t-team-node">
+                        <span class="t-team-label" id="t-semi2-lblA">予選2位</span>
+                        <span class="t-team-name" id="t-semi2-a">-</span>
+                    </div>
+                    <div class="t-team-node">
+                        <span class="t-team-label" id="t-semi2-lblB">予選3位</span>
+                        <span class="t-team-name" id="t-semi2-b">-</span>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <script>
         let state = {
             teams: [],
-            groups: [], // [{ name: 'A', teams: [0,1] }]
-            matches: [],
-            tournMatches: []
+            groups: [],
+            matches: []
         };
 
         // 初期表示時：チーム名入力フィールドの生成
@@ -353,7 +518,7 @@
 
             buildSchedule();
             renderMatrix();
-            buildTournament();
+            buildTournamentInputs();
             calculateAll();
         }
 
@@ -401,13 +566,13 @@
             const container = document.getElementById('matrix-container');
             container.innerHTML = '';
 
-            state.groups.forEach((grp, gIdx) => {
+            state.groups.forEach((grp) => {
                 let html = `<h4 style="text-align:left; color:var(--gold); margin:10px 0 5px 0;">■ ${grp.name}</h4>`;
-                html += `<table><thead><tr><th>チーム</th>`;
+                html += `<table class="matrix-table"><thead><tr><th>チーム</th>`;
                 grp.teams.forEach(tIdx => {
                     html += `<th>${state.teams[tIdx]}</th>`;
                 });
-                html += `<th>勝</th><th>分</th><th>負</th><th>勝点</th><th>順位</th></tr></thead><tbody>`;
+                html += `<th class="stats-hdr">勝</th><th class="stats-hdr">分</th><th class="stats-hdr">負</th><th class="stats-hdr">勝点</th><th class="stats-hdr">自内野</th><th class="stats-hdr">相内野</th><th class="rank-hdr">順位</th></tr></thead><tbody>`;
 
                 grp.teams.forEach(rIdx => {
                     html += `<tr><td style="font-weight:bold;">${state.teams[rIdx]}</td>`;
@@ -420,6 +585,8 @@
                     });
                     html += `<td id="st_w_${rIdx}">0</td><td id="st_d_${rIdx}">0</td><td id="st_l_${rIdx}">0</td>
                              <td id="st_pts_${rIdx}" style="font-weight:bold; color:var(--gold);">0</td>
+                             <td id="st_myin_${rIdx}" style="font-weight:bold; color:var(--accent2);">0</td>
+                             <td id="st_oppin_${rIdx}">0</td>
                              <td id="st_rank_${rIdx}" style="font-weight:bold;">-</td></tr>`;
                 });
 
@@ -428,38 +595,53 @@
             });
         }
 
-        // 決勝トーナメント構造の構築
-        function buildTournament() {
+        // 決勝トーナメント入力欄の構築 (条件に応じたセット数の判定)
+        function buildTournamentInputs() {
             const container = document.getElementById('tournament-container');
             container.innerHTML = '';
-            const is3Sets = document.getElementById('cfg-sets').value === '3';
+            
+            const setsRule = document.getElementById('cfg-sets-rule').value;
+            const isSemi3Sets = (setsRule === 'semi');
+            const isFinal3Sets = (setsRule === 'semi' || setsRule === 'final');
 
-            // プロトタイプとして簡略化した準決勝・決勝の組み方
             let html = `
                 <div class="tourn-match-card">
                     <div class="tourn-match-header">
                         <span>🏆 準決勝 第1試合</span>
-                        <span>${is3Sets ? '3セットマッチ' : '1セットマッチ'}</span>
+                        <span>${isSemi3Sets ? '3セットマッチ' : '1セットマッチ'}</span>
                     </div>
                     <div class="tourn-match-body">
-                        <span id="t_m1_ta">予選1位</span>
-                        <span id="t_m1_score" style="color:var(--gold);">- vs -</span>
-                        <span id="t_m1_tb">予選4位</span>
+                        <span id="t_m1_ta">準決1(左)</span>
+                        <span style="color:var(--sub-text); font-size:12px;"> vs </span>
+                        <span id="t_m1_tb">準決1(右)</span>
                     </div>
-                    ${renderSetInputs('m1', is3Sets)}
+                    ${renderSetInputs('m1', isSemi3Sets)}
                 </div>
 
                 <div class="tourn-match-card">
                     <div class="tourn-match-header">
-                        <span>🏆 決勝戦</span>
-                        <span>${is3Sets ? '3セットマッチ' : '1セットマッチ'}</span>
+                        <span>🏆 準決勝 第2試合</span>
+                        <span>${isSemi3Sets ? '3セットマッチ' : '1セットマッチ'}</span>
                     </div>
                     <div class="tourn-match-body">
-                        <span id="t_m2_ta">準決勝勝者</span>
-                        <span id="t_m2_score" style="color:var(--gold); font-size:16px;">- vs -</span>
-                        <span id="t_m2_tb">準決勝勝者</span>
+                        <span id="t_m2_ta">準決2(左)</span>
+                        <span style="color:var(--sub-text); font-size:12px;"> vs </span>
+                        <span id="t_m2_tb">準決2(右)</span>
                     </div>
-                    ${renderSetInputs('m2', is3Sets)}
+                    ${renderSetInputs('m2', isSemi3Sets)}
+                </div>
+
+                <div class="tourn-match-card" style="border-color: var(--gold);">
+                    <div class="tourn-match-header">
+                        <span style="color:var(--gold); font-weight:bold;">🥇 決勝戦</span>
+                        <span>${isFinal3Sets ? '3セットマッチ' : '1セットマッチ'}</span>
+                    </div>
+                    <div class="tourn-match-body">
+                        <span id="t_mf_ta">決勝(左)</span>
+                        <span style="color:var(--sub-text); font-size:12px;"> vs </span>
+                        <span id="t_mf_tb">決勝(右)</span>
+                    </div>
+                    ${renderSetInputs('mf', isFinal3Sets)}
                 </div>
             `;
             container.innerHTML = html;
@@ -488,12 +670,72 @@
             return html;
         }
 
+        // トーナメント1試合分の勝敗・表示用文字列計算
+        function getTournMatchResult(matchKey, is3Sets, teamA, teamB) {
+            const setsCount = is3Sets ? 3 : 1;
+            let winA = 0, winB = 0;
+            let setDetails = [];
+
+            for (let s = 1; s <= setsCount; s++) {
+                const saEl = document.getElementById(`ts_${matchKey}_s${s}_a`);
+                const sbEl = document.getElementById(`ts_${matchKey}_s${s}_b`);
+                const panel = document.getElementById(`v_${matchKey}_s${s}_panel`);
+                const vSelect = document.getElementById(`v_${matchKey}_s${s}_win`);
+
+                if (saEl && sbEl && saEl.value !== '' && sbEl.value !== '') {
+                    const sa = parseInt(saEl.value, 10);
+                    const sb = parseInt(sbEl.value, 10);
+
+                    if (sa > sb) {
+                        winA++;
+                        if (panel) panel.style.display = 'none';
+                        setDetails.push(`${sa}-${sb}`);
+                    } else if (sb > sa) {
+                        winB++;
+                        if (panel) panel.style.display = 'none';
+                        setDetails.push(`${sa}-${sb}`);
+                    } else {
+                        // 同点 ➜ Vpt発生
+                        if (panel) panel.style.display = 'inline-block';
+                        const vWin = vSelect ? vSelect.value : '';
+                        const loserScore = sa - 1 >= 0 ? sa - 1 : 0;
+                        if (vWin === 'A') {
+                            winA++;
+                            setDetails.push(`${sa}v(${sa})-(${sb})${loserScore}`);
+                        } else if (vWin === 'B') {
+                            winB++;
+                            setDetails.push(`${loserScore}(${sa})-(${sb})${sb}v`);
+                        } else {
+                            setDetails.push(`${sa}-${sb}(Vpt未決)`);
+                        }
+                    }
+                }
+            }
+
+            let dispText = '- vs -';
+            let winner = '-', loser = '-';
+
+            if (setDetails.length > 0) {
+                if (is3Sets) {
+                    dispText = `(${winA}) ${setDetails.join(' / ')} (${winB})`;
+                    if (winA >= 2) { winner = teamA; loser = teamB; }
+                    else if (winB >= 2) { winner = teamB; loser = teamA; }
+                } else {
+                    dispText = setDetails[0];
+                    if (winA > winB) { winner = teamA; loser = teamB; }
+                    else if (winB > winA) { winner = teamB; loser = teamA; }
+                }
+            }
+
+            return { winner, loser, dispText };
+        }
+
         // 全体の計算・自動更新処理
         function calculateAll() {
-            // 集計初期化
-            let stats = state.teams.map((name, i) => ({ id: i, name, pts: 0, win: 0, draw: 0, lose: 0, myIn: 0, rank: 0 }));
+            // 1. 集計初期化
+            let stats = state.teams.map((name, i) => ({ id: i, name, pts: 0, win: 0, draw: 0, lose: 0, myIn: 0, oppIn: 0, rank: 0 }));
 
-            // 予選スコア集計
+            // 2. 予選スコア集計
             state.matches.forEach(m => {
                 const saEl = document.getElementById(`s_${m.id}_a`);
                 const sbEl = document.getElementById(`s_${m.id}_b`);
@@ -504,8 +746,8 @@
                     const sa = parseInt(saEl.value, 10);
                     const sb = parseInt(sbEl.value, 10);
 
-                    stats[m.teamA].myIn += sa;
-                    stats[m.teamB].myIn += sb;
+                    stats[m.teamA].myIn += sa; stats[m.teamA].oppIn += sb;
+                    stats[m.teamB].myIn += sb; stats[m.teamB].oppIn += sa;
 
                     if (sa > sb) {
                         stats[m.teamA].pts += 2; stats[m.teamA].win++;
@@ -526,7 +768,7 @@
                 }
             });
 
-            // 集計値を画面に反映
+            // 集計値を星取表に反映
             stats.forEach(st => {
                 const w = document.getElementById(`st_w_${st.id}`);
                 if (w) {
@@ -534,21 +776,58 @@
                     document.getElementById(`st_d_${st.id}`).innerText = st.draw;
                     document.getElementById(`st_l_${st.id}`).innerText = st.lose;
                     document.getElementById(`st_pts_${st.id}`).innerText = st.pts;
+                    document.getElementById(`st_myin_${st.id}`).innerText = st.myIn;
+                    document.getElementById(`st_oppin_${st.id}`).innerText = st.oppIn;
                 }
             });
 
-            // 簡易的に全体順位ソート
+            // 順位ソート (勝点 ➜ 自内野)
             let sorted = [...stats].sort((a,b) => b.pts - a.pts || b.myIn - a.myIn);
             sorted.forEach((st, idx) => {
                 const rEl = document.getElementById(`st_rank_${st.id}`);
                 if (rEl) rEl.innerText = `${idx + 1}位`;
             });
 
-            // トーナメントのチーム名反映（1位と4位例）
-            if (sorted.length >= 2) {
-                document.getElementById('t_m1_ta').innerText = sorted[0].name;
-                document.getElementById('t_m1_tb').innerText = sorted[sorted.length - 1].name;
-            }
+            // 3. 決勝トーナメントの計算と図形への反映
+            const setsRule = document.getElementById('cfg-sets-rule').value;
+            const isSemi3Sets = (setsRule === 'semi');
+            const isFinal3Sets = (setsRule === 'semi' || setsRule === 'final');
+
+            // チーム名（1位vs4位、2位vs3位）
+            let semi1A = sorted[0] ? sorted[0].name : '-';
+            let semi1B = sorted[3] ? sorted[3].name : (sorted[1] ? sorted[1].name : '-');
+            let semi2A = sorted[1] ? sorted[1].name : '-';
+            let semi2B = sorted[2] ? sorted[2].name : '-';
+
+            document.getElementById('t_m1_ta').innerText = semi1A;
+            document.getElementById('t_m1_tb').innerText = semi1B;
+            document.getElementById('t-semi1-a').innerText = semi1A;
+            document.getElementById('t-semi1-b').innerText = semi1B;
+
+            document.getElementById('t_m2_ta').innerText = semi2A;
+            document.getElementById('t_m2_tb').innerText = semi2B;
+            document.getElementById('t-semi2-a').innerText = semi2A;
+            document.getElementById('t-semi2-b').innerText = semi2B;
+
+            // 準決勝1 & 2 計算
+            const resM1 = getTournMatchResult('m1', isSemi3Sets, semi1A, semi1B);
+            const resM2 = getTournMatchResult('m2', isSemi3Sets, semi2A, semi2B);
+
+            document.getElementById('disp-semi1-score').innerText = resM1.dispText;
+            document.getElementById('disp-semi2-score').innerText = resM2.dispText;
+
+            // 決勝戦 チーム名反映
+            let finalA = resM1.winner !== '-' ? resM1.winner : '準勝1勝者';
+            let finalB = resM2.winner !== '-' ? resM2.winner : '準勝2勝者';
+
+            document.getElementById('t_mf_ta').innerText = finalA;
+            document.getElementById('t_mf_tb').innerText = finalB;
+            document.getElementById('t-final-teamA').innerText = finalA;
+            document.getElementById('t-final-teamB').innerText = finalB;
+
+            // 決勝戦 計算
+            const resMF = getTournMatchResult('mf', isFinal3Sets, finalA, finalB);
+            document.getElementById('disp-final-score').innerText = resMF.dispText;
         }
 
         // 初期セットアップ
