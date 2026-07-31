@@ -91,9 +91,10 @@
             font-size: 13px;
         }
         th, td {
-            padding: 8px 4px;
+            padding: 6px 4px;
             border: 1px solid var(--border);
             text-align: center;
+            vertical-align: middle;
         }
         th {
             background: #1e293b;
@@ -112,6 +113,28 @@
         .matrix-table th.rank-hdr {
             background-color: #0f172a;
             color: #fbd38d;
+        }
+
+        /* 星取表のセル（勝負結果＋スコア） */
+        .cell-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 42px;
+            line-height: 1.2;
+        }
+        .cell-symbol {
+            font-size: 13px;
+            font-weight: bold;
+        }
+        .cell-symbol.win { color: #fbd38d; }   /* 〇：ゴールド */
+        .cell-symbol.draw { color: #94a3b8; }  /* △：グレー */
+        .cell-symbol.lose { color: #f87171; }  /* ✕：赤 */
+
+        .cell-score {
+            font-size: 11px;
+            color: #cbd5e1;
         }
 
         /* 得点入力用インプット */
@@ -218,7 +241,7 @@
         </tbody>
     </table>
 
-    <!-- 3. 予選対戦星取表（右端に勝・分・負・勝点・自内野・相内野・順位） -->
+    <!-- 3. 予選対戦星取表 -->
     <div class="section-title">⚔️ 予選対戦表（星取表）</div>
     <div style="overflow-x: auto;">
         <table class="matrix-table">
@@ -343,12 +366,10 @@
                 rank: 0
             }));
             
-            let matrixScores = [
-                ['-', '-', '-', '-'],
-                ['-', '-', '-', '-'],
-                ['-', '-', '-', '-'],
-                ['-', '-', '-', '-']
-            ];
+            // 星取表用セルオブジェクト初期化 { symbol: '', score: '-' }
+            let matrixData = Array(4).fill(null).map(() => 
+                Array(4).fill(null).map(() => ({ symbol: '', score: '-' }))
+            );
 
             let headToHead = [
                 [0, 0, 0, 0],
@@ -373,30 +394,35 @@
                     headToHead[m.a][m.b] = sa - sb;
                     headToHead[m.b][m.a] = sb - sa;
 
+                    let symA = '', symB = '';
+
                     if (sa > sb) {
-                        stats[m.a].pts += 2; // 勝ち: 2点
+                        stats[m.a].pts += 2;
                         stats[m.a].win += 1;
                         stats[m.b].lose += 1;
+                        symA = '〇';
+                        symB = '✕';
                     } else if (sb > sa) {
-                        stats[m.b].pts += 2; // 勝ち: 2点
+                        stats[m.b].pts += 2;
                         stats[m.b].win += 1;
                         stats[m.a].lose += 1;
+                        symA = '✕';
+                        symB = '〇';
                     } else {
-                        stats[m.a].pts += 1; // 引き分け: 1点
+                        stats[m.a].pts += 1;
                         stats[m.b].pts += 1;
                         stats[m.a].draw += 1;
                         stats[m.b].draw += 1;
+                        symA = '△';
+                        symB = '△';
                     }
 
-                    matrixScores[m.a][m.b] = `${sa} - ${sb}`;
-                    matrixScores[m.b][m.a] = `${sb} - ${sa}`;
+                    matrixData[m.a][m.b] = { symbol: symA, score: `${sa} - ${sb}` };
+                    matrixData[m.b][m.a] = { symbol: symB, score: `${sb} - ${sa}` };
                 }
             });
 
-            // 順位付けの計算
-            // 1. 勝ち点
-            // 2. 自チーム内野人数合計
-            // 3. 直接対決の勝者
+            // 順位付けの計算（1. 勝ち点 ➔ 2. 自内野人数 ➔ 3. 直接対決）
             let sortedStats = [...stats].sort((a, b) => {
                 if (b.pts !== a.pts) return b.pts - a.pts;
                 if (b.myInfield !== a.myInfield) return b.myInfield - a.myInfield;
@@ -405,13 +431,12 @@
                 return 0;
             });
 
-            // ソート順に基づいて各チームオブジェクトに rank を反映
             sortedStats.forEach((st, idx) => {
                 stats[st.id].rank = idx + 1;
             });
 
-            // 星取表を描画（一番右に順位を表示）
-            renderMatrix(teams, matrixScores, stats);
+            // 星取表を描画
+            renderMatrix(teams, matrixData, stats);
 
             // 決勝トーナメントに順位チーム名を自動セット
             document.getElementById('t-semi1-a').innerText = sortedStats[0].name;
@@ -420,8 +445,8 @@
             document.getElementById('t-semi2-b').innerText = sortedStats[2].name;
         }
 
-        // 星取表の描画関数（一番右に「順位」セルを追加）
-        function renderMatrix(teams, scores, stats) {
+        // 星取表の描画関数（勝敗記号＋スコアの2段構造）
+        function renderMatrix(teams, matrixData, stats) {
             const thead = document.getElementById('matrix-header');
             const tbody = document.getElementById('matrix-body');
 
@@ -441,7 +466,23 @@
                     if (rIdx === cIdx) {
                         rowHTML += `<td class="self-cell">-</td>`;
                     } else {
-                        rowHTML += `<td>${scores[rIdx][cIdx]}</td>`;
+                        const cell = matrixData[rIdx][cIdx];
+                        let symClass = '';
+                        if (cell.symbol === '〇') symClass = 'win';
+                        else if (cell.symbol === '△') symClass = 'draw';
+                        else if (cell.symbol === '✕') symClass = 'lose';
+
+                        if (cell.symbol) {
+                            rowHTML += `
+                                <td>
+                                    <div class="cell-container">
+                                        <div class="cell-symbol ${symClass}">${cell.symbol}</div>
+                                        <div class="cell-score">${cell.score}</div>
+                                    </div>
+                                </td>`;
+                        } else {
+                            rowHTML += `<td>-</td>`;
+                        }
                     }
                 });
 
