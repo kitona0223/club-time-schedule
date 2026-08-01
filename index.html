@@ -29,10 +29,20 @@
             color: var(--text);
             text-align: center;
         }
+
+        /* ヘッダーエリア */
+        .header-container {
+            margin-bottom: 20px;
+        }
+        .event-date-disp {
+            font-size: 14px;
+            color: var(--sub-text);
+            margin-bottom: 4px;
+        }
         h1 {
-            font-size: 22px;
+            font-size: 24px;
             color: var(--gold);
-            margin-bottom: 15px;
+            margin: 0;
             letter-spacing: 2px;
             text-transform: uppercase;
         }
@@ -171,15 +181,19 @@
         }
         th { background: #1e293b; color: var(--sub-text); }
 
+        /* コート別バッジ表示 (A~D) */
         .court-badge {
             display: inline-block;
-            padding: 2px 6px;
+            padding: 3px 8px;
             border-radius: 4px;
-            font-size: 10px;
+            font-size: 11px;
             font-weight: bold;
             color: #fff;
         }
         .court-A { background: #3182ce; }
+        .court-B { background: #38a169; }
+        .court-C { background: #805ad5; }
+        .court-D { background: #dd6b20; }
 
         .score-input {
             width: 38px;
@@ -201,9 +215,8 @@
             border-radius: 4px;
             margin-left: 6px;
         }
-        .res-win { background-color: #e53e3e; color: #fff; }  /* 勝 */
-        .res-draw { background-color: #d69e2e; color: #fff; } /* 引分 */
-        .res-lose { background-color: #3182ce; color: #fff; } /* 負 */
+        .res-win { background-color: #e53e3e; color: #fff; }
+        .res-draw { background-color: #d69e2e; color: #fff; }
 
         .vpt-panel {
             margin-top: 4px;
@@ -284,7 +297,7 @@
             border-radius: 6px;
         }
 
-        /* 🏆 甲子園風トーナメント表（図形表示） */
+        /* 🏆 甲子園風トーナメント表 */
         .tournament-wrapper {
             max-width: 850px;
             margin: 0 auto;
@@ -381,12 +394,8 @@
             z-index: 2;
             white-space: nowrap;
         }
-        .match-score-disp.final {
-            border-color: var(--gold);
-        }
-        .match-score-disp.third {
-            border-color: var(--bronze);
-        }
+        .match-score-disp.final { border-color: var(--gold); }
+        .match-score-disp.third { border-color: var(--bronze); }
         .final-center {
             display: flex;
             flex-direction: column;
@@ -407,76 +416,55 @@
             gap: 15px;
             margin-top: 6px;
         }
-        .trophy-title {
-            font-size: 13px;
-            font-weight: bold;
-            color: var(--gold);
-            margin-bottom: 4px;
-        }
-        .bronze-title {
-            font-size: 13px;
-            font-weight: bold;
-            color: var(--bronze);
-            margin-bottom: 4px;
-        }
+        .trophy-title { font-size: 13px; font-weight: bold; color: var(--gold); margin-bottom: 4px; }
+        .bronze-title { font-size: 13px; font-weight: bold; color: var(--bronze); margin-bottom: 4px; }
 
-        /* 🖨️ 印刷 (PDF出力) 用スタイル設定 */
+        /* 🖨️ 印刷 (PDF) 用スタイル */
         @media print {
-            body {
-                background-color: #fff !important;
-                color: #000 !important;
-                padding: 0;
-            }
-            h1 {
-                color: #000 !important;
-                font-size: 18px;
-                margin-bottom: 10px;
-            }
+            body { background-color: #fff !important; color: #000 !important; padding: 0; }
+            .header-container { margin-bottom: 10px; }
+            .event-date-disp { color: #333 !important; font-size: 12px; }
+            h1 { color: #000 !important; font-size: 20px; margin-bottom: 10px; }
             .config-card, .btn-primary, .io-btn-group, .section-title:nth-of-type(1), #schedule-table, .section-title:nth-of-type(3), #tournament-container {
-                display: none !important; /* 不要エリアの非表示 */
+                display: none !important;
             }
-            .section-title {
-                color: #000 !important;
-                border-left-color: #000 !important;
-                margin-top: 10px;
-            }
+            .section-title { color: #000 !important; border-left-color: #000 !important; margin-top: 10px; }
             table, .tournament-wrapper, .tourn-match-card {
-                background: #fff !important;
-                color: #000 !important;
-                border: 1px solid #666 !important;
-                box-shadow: none !important;
+                background: #fff !important; color: #000 !important; border: 1px solid #666 !important; box-shadow: none !important;
             }
-            th, td {
-                border: 1px solid #666 !important;
-                color: #000 !important;
-                background: #fff !important;
-            }
+            th, td { border: 1px solid #666 !important; color: #000 !important; background: #fff !important; }
             .matrix-title { color: #000 !important; }
-            .t-team-node, .match-score-disp {
-                background: #fff !important;
-                color: #000 !important;
-                border-color: #333 !important;
-            }
+            .t-team-node, .match-score-disp { background: #fff !important; color: #000 !important; border-color: #333 !important; }
             .t-team-name { color: #000 !important; }
-            .bracket-line, .bracket-line::after {
-                border-color: #333 !important;
-                background-color: #333 !important;
-            }
-            .score-input {
-                border: none !important;
-                background: transparent !important;
-                color: #000 !important;
-            }
+            .bracket-line, .bracket-line::after { border-color: #333 !important; background-color: #333 !important; }
+            .score-input { border: none !important; background: transparent !important; color: #000 !important; }
+            .court-badge { border: 1px solid #333; color: #000 !important; background: transparent !important; }
         }
     </style>
 </head>
 <body>
 
-    <h1>CLUB TIME SCHEDULE</h1>
+    <!-- ヘッダー (大会名・開催日表示部) -->
+    <div class="header-container">
+        <div class="event-date-disp" id="disp-event-date">2026-08-01</div>
+        <h1 id="disp-event-name">CLUB TIME SCHEDULE</h1>
+    </div>
 
     <!-- 大会基本設定エリア -->
     <div class="config-card">
-        <div class="config-title">⚙️ 大会ルール・形式設定</div>
+        <div class="config-title">📝 大会基本情報</div>
+        <div class="config-grid">
+            <div class="config-item" style="grid-column: span 2;">
+                <label>大会名</label>
+                <input type="text" id="cfg-event-name" value="CLUB TIME SCHEDULE" placeholder="例: 第10回 サマーカップ" oninput="updateHeaderInfo()">
+            </div>
+            <div class="config-item">
+                <label>開催日</label>
+                <input type="date" id="cfg-event-date" onchange="updateHeaderInfo()">
+            </div>
+        </div>
+
+        <div class="config-title" style="margin-top: 15px;">⚙️ 大会ルール・会場設定</div>
         <div class="config-grid">
             <div class="config-item">
                 <label>参加チーム数</label>
@@ -488,6 +476,15 @@
                     <option value="6">6チーム</option>
                     <option value="7">7チーム</option>
                     <option value="8">8チーム</option>
+                </select>
+            </div>
+            <div class="config-item">
+                <label>使用コート数</label>
+                <select id="cfg-courts" onchange="buildApp()">
+                    <option value="1" selected>1コート (A)</option>
+                    <option value="2">2コート (A, B)</option>
+                    <option value="3">3コート (A, B, C)</option>
+                    <option value="4">4コート (A, B, C, D)</option>
                 </select>
             </div>
             <div class="config-item">
@@ -504,7 +501,7 @@
                 <label>トーナメント対象リーグ</label>
                 <select id="cfg-target-round" onchange="calculateAll()">
                     <option value="all" selected>全巡（通算成績）</option>
-                    <option value="last">最終巡のみ（直前リーグ優先）</option>
+                    <option value="last">最終巡のみ（直前優先）</option>
                 </select>
             </div>
             <div class="config-item">
@@ -542,7 +539,7 @@
     <table id="schedule-table">
         <thead>
             <tr>
-                <th style="width: 65px;">コート</th>
+                <th style="width: 75px;">コート</th>
                 <th style="width: 65px;">試合</th>
                 <th>対戦カード</th>
                 <th style="width: 130px;">スコア (内野人数)</th>
@@ -554,7 +551,7 @@
         </tbody>
     </table>
 
-    <!-- 予選星取表エリア（巡別＆通算） -->
+    <!-- 予選星取表エリア -->
     <div class="section-title">⚔️ 予選対戦表（巡別・通算星取表）</div>
     <div id="matrix-container" style="overflow-x: auto;">
         <!-- JSで動的生成 -->
@@ -566,10 +563,9 @@
         <!-- JSで動的生成 -->
     </div>
 
-    <!-- 🏆 甲子園風 決勝トーナメント表（図形表示） -->
+    <!-- 🏆 決勝トーナメント表（図形表示） -->
     <div class="section-title">🏆 決勝トーナメント表（図）</div>
     <div class="tournament-wrapper">
-        <!-- 頂点：決勝戦 -->
         <div class="final-center">
             <div class="trophy-title">🥇 決勝戦</div>
             <div class="final-teams-flex">
@@ -585,9 +581,7 @@
             </div>
         </div>
 
-        <!-- トーナメント山図 -->
         <div class="tournament-tree">
-            <!-- 左の山（準決勝1） -->
             <div class="tree-half">
                 <div class="match-score-disp" id="disp-semi1-score">- vs -</div>
                 <div class="bracket-line"></div>
@@ -603,7 +597,6 @@
                 </div>
             </div>
 
-            <!-- 右の山（準決勝2） -->
             <div class="tree-half">
                 <div class="match-score-disp" id="disp-semi2-score">- vs -</div>
                 <div class="bracket-line"></div>
@@ -620,7 +613,6 @@
             </div>
         </div>
 
-        <!-- 3位決定戦 -->
         <div class="third-center">
             <div class="bronze-title">🥉 3位決定戦</div>
             <div class="final-teams-flex">
@@ -638,19 +630,33 @@
     </div>
 
     <script>
+        const COURT_NAMES = ['A', 'B', 'C', 'D'];
+
         let state = {
             teams: [],
             roundsCount: 1,
+            courtsCount: 1,
             matches: []
         };
 
-        // 初期ロード処理
         window.addEventListener('DOMContentLoaded', () => {
+            const today = new Date().toISOString().slice(0, 10);
+            document.getElementById('cfg-event-date').value = today;
+            updateHeaderInfo();
+
             renderTeamInputs();
             buildApp();
         });
 
-        // チーム名入力フィールドの生成
+        function updateHeaderInfo() {
+            const nameVal = document.getElementById('cfg-event-name').value || 'CLUB TIME SCHEDULE';
+            const dateVal = document.getElementById('cfg-event-date').value;
+
+            document.getElementById('disp-event-name').innerText = nameVal;
+            document.getElementById('disp-event-date').innerText = dateVal ? `開催日: ${dateVal}` : '';
+            document.title = nameVal;
+        }
+
         function renderTeamInputs() {
             const count = parseInt(document.getElementById('cfg-teams').value, 10);
             const container = document.getElementById('team-inputs-container');
@@ -668,7 +674,6 @@
             container.innerHTML = html;
         }
 
-        // 大会全体の再構築
         function buildApp() {
             const teamCount = parseInt(document.getElementById('cfg-teams').value, 10);
             state.teams = [];
@@ -678,6 +683,7 @@
             }
 
             state.roundsCount = parseInt(document.getElementById('cfg-rounds').value, 10);
+            state.courtsCount = parseInt(document.getElementById('cfg-courts').value, 10);
 
             buildSchedule();
             renderMatrixes();
@@ -685,7 +691,7 @@
             calculateAll();
         }
 
-        // 予選スケジュールの生成
+        // 予選スケジュールの生成（1〜4コート割り振り対応）
         function buildSchedule() {
             state.matches = [];
             let matchId = 0;
@@ -693,13 +699,18 @@
             for (let r = 1; r <= state.roundsCount; r++) {
                 for (let i = 0; i < state.teams.length; i++) {
                     for (let j = i + 1; j < state.teams.length; j++) {
+                        // コートの自動割り振りを計算 (A, B, C, D)
+                        const courtIdx = matchId % state.courtsCount;
+                        const courtName = COURT_NAMES[courtIdx];
+
                         state.matches.push({
-                            id: matchId++,
+                            id: matchId,
                             roundNum: r,
                             teamA: i,
                             teamB: j,
-                            court: 'A'
+                            court: courtName
                         });
+                        matchId++;
                     }
                 }
             }
@@ -722,13 +733,11 @@
             });
         }
 
-        // 星取表（巡別・通算）の枠組み生成
         function renderMatrixes() {
             const container = document.getElementById('matrix-container');
             container.innerHTML = '';
 
             let html = '';
-
             for (let r = 1; r <= state.roundsCount; r++) {
                 html += `<div class="matrix-title">■ 第 ${r} 巡目 対戦表</div>`;
                 html += renderSingleMatrixTable(`r${r}`);
@@ -742,7 +751,6 @@
             container.innerHTML = html;
         }
 
-        // 1回分（1テーブル）の星取表HTML作成用ヘルパー
         function renderSingleMatrixTable(prefix) {
             let html = `<table class="matrix-table" id="matrix_table_${prefix}"><thead><tr><th>チーム</th>`;
             state.teams.forEach((_, tIdx) => {
@@ -770,7 +778,6 @@
             return html;
         }
 
-        // ラウンドごとの3セット判定ヘルパー関数
         function checkIs3Sets(roundLevel, setsRule) {
             if (setsRule === 'none') return false;
             if (setsRule === 'all') return true;
@@ -780,7 +787,6 @@
             return false;
         }
 
-        // 決勝トーナメント入力欄の構築
         function buildTournamentInputs() {
             const container = document.getElementById('tournament-container');
             container.innerHTML = '';
@@ -869,7 +875,6 @@
             return html;
         }
 
-        // 成績加算用ヘルパー
         function addStats(stA, stB, sa, sb) {
             stA.myIn += sa;
             stA.oppIn += sb;
@@ -888,7 +893,6 @@
             }
         }
 
-        // 星取表表示のアップデート
         function updateMatrixUI(prefix, statsArray, cellsObj, isTotal) {
             let ranked = [...statsArray].sort((a, b) => b.pts - a.pts || b.myIn - a.myIn);
             let rankMap = {};
@@ -921,7 +925,6 @@
             });
         }
 
-        // トーナメント1試合分の計算
         function getTournMatchResult(matchKey, is3Sets, teamA, teamB) {
             const setsCount = is3Sets ? 3 : 1;
             let winA = 0, winB = 0;
@@ -980,7 +983,6 @@
             return { winner, loser, dispText };
         }
 
-        // 全体の計算・各巡別および通算星取表への書き換え
         function calculateAll() {
             const targetMode = document.getElementById('cfg-target-round').value;
 
@@ -1075,7 +1077,6 @@
             document.getElementById('disp-semi1-score').innerText = semi1Res.dispText;
             document.getElementById('disp-semi2-score').innerText = semi2Res.dispText;
 
-            // 決勝戦進出チームの反映
             const finA = semi1Res.winner !== '-' ? semi1Res.winner : '準決勝1勝者';
             const finB = semi2Res.winner !== '-' ? semi2Res.winner : '準決勝2勝者';
 
@@ -1085,7 +1086,6 @@
             document.getElementById('t-final-teamA').innerText = finA;
             document.getElementById('t-final-teamB').innerText = finB;
 
-            // 3位決定戦進出チームの反映
             const thdA = semi1Res.loser !== '-' ? semi1Res.loser : '準決勝1敗者';
             const thdB = semi2Res.loser !== '-' ? semi2Res.loser : '準決勝2敗者';
 
@@ -1095,7 +1095,6 @@
             document.getElementById('t-third-teamA').innerText = thdA;
             document.getElementById('t-third-teamB').innerText = thdB;
 
-            // 3位決定戦＆決勝戦の計算結果取得
             const thirdRes = getTournMatchResult('m3', isThird3Sets, thdA, thdB);
             document.getElementById('disp-third-score').innerText = thirdRes.dispText;
 
@@ -1104,15 +1103,13 @@
         }
 
         // ==========================================
-        // 💾 PDF / JSON / CSV データ入出力（データ保存・復元）
+        // 💾 PDF / JSON / CSV データ入出力
         // ==========================================
 
-        // PDF / 印刷出力
         function exportPDF() {
             window.print();
         }
 
-        // ファイルダウンロード用共通関数
         function downloadFile(content, fileName, contentType) {
             const a = document.createElement('a');
             const file = new Blob([content], { type: contentType });
@@ -1122,11 +1119,13 @@
             URL.revokeObjectURL(a.href);
         }
 
-        // 1. 全状態のJSONエクスポート
         function exportJSON() {
             let data = {
                 config: {
+                    eventName: document.getElementById('cfg-event-name').value,
+                    eventDate: document.getElementById('cfg-event-date').value,
                     teamsCount: document.getElementById('cfg-teams').value,
+                    courtsCount: document.getElementById('cfg-courts').value,
                     roundsCount: document.getElementById('cfg-rounds').value,
                     targetRound: document.getElementById('cfg-target-round').value,
                     setsRule: document.getElementById('cfg-sets-rule').value,
@@ -1136,14 +1135,12 @@
                 tournamentScores: {}
             };
 
-            // 予選スコア取得
             state.matches.forEach(m => {
                 const sa = document.getElementById(`s_${m.id}_a`)?.value || '';
                 const sb = document.getElementById(`s_${m.id}_b`)?.value || '';
                 data.preliminaryScores[m.id] = { sa, sb };
             });
 
-            // トーナメントスコア取得
             ['m1', 'm2', 'm3', 'mf'].forEach(mKey => {
                 data.tournamentScores[mKey] = {};
                 for (let s = 1; s <= 3; s++) {
@@ -1155,11 +1152,10 @@
             });
 
             const jsonStr = JSON.stringify(data, null, 2);
-            const timeStamp = new Date().toISOString().slice(0, 10);
-            downloadFile(jsonStr, `club_schedule_${timeStamp}.json`, 'application/json');
+            const eventName = data.config.eventName || 'club_schedule';
+            downloadFile(jsonStr, `${eventName}.json`, 'application/json');
         }
 
-        // 2. JSONデータのインポート復元
         function importJSON(event) {
             const file = event.target.files[0];
             if (!file) return;
@@ -1169,8 +1165,15 @@
                 try {
                     const data = JSON.parse(e.target.result);
 
-                    // 設定反映
                     if (data.config) {
+                        if (data.config.eventName !== undefined) {
+                            document.getElementById('cfg-event-name').value = data.config.eventName;
+                        }
+                        if (data.config.eventDate !== undefined) {
+                            document.getElementById('cfg-event-date').value = data.config.eventDate;
+                        }
+                        updateHeaderInfo();
+
                         document.getElementById('cfg-teams').value = data.config.teamsCount;
                         renderTeamInputs();
 
@@ -1181,6 +1184,9 @@
                             });
                         }
 
+                        if (data.config.courtsCount !== undefined) {
+                            document.getElementById('cfg-courts').value = data.config.courtsCount;
+                        }
                         document.getElementById('cfg-rounds').value = data.config.roundsCount;
                         document.getElementById('cfg-target-round').value = data.config.targetRound;
                         document.getElementById('cfg-sets-rule').value = data.config.setsRule;
@@ -1188,7 +1194,6 @@
                         buildApp();
                     }
 
-                    // 予選スコア復元
                     if (data.preliminaryScores) {
                         Object.keys(data.preliminaryScores).forEach(id => {
                             const saEl = document.getElementById(`s_${id}_a`);
@@ -1198,7 +1203,6 @@
                         });
                     }
 
-                    // トーナメントスコア復元
                     if (data.tournamentScores) {
                         Object.keys(data.tournamentScores).forEach(mKey => {
                             for (let s = 1; s <= 3; s++) {
@@ -1222,12 +1226,16 @@
                 }
             };
             reader.readAsText(file);
-            event.target.value = ''; // ファイルリセット
+            event.target.value = '';
         }
 
-        // 3. 星取表のCSV出力
         function exportMatrixCSV() {
-            let csvContent = "\uFEFF"; // UTF-8 BOM
+            let csvContent = "\uFEFF";
+            const eventName = document.getElementById('cfg-event-name').value;
+            const eventDate = document.getElementById('cfg-event-date').value;
+
+            csvContent += `大会名,"${eventName}"\n`;
+            csvContent += `開催日,"${eventDate}"\n\n`;
 
             for (let r = 1; r <= state.roundsCount; r++) {
                 csvContent += `■ 第 ${r} 巡目 対戦表\n`;
@@ -1241,10 +1249,9 @@
                 csvContent += "\n\n";
             }
 
-            downloadFile(csvContent, `preliminary_matrix.csv`, 'text/csv;charset=utf-8;');
+            downloadFile(csvContent, `matrix_${eventName}.csv`, 'text/csv;charset=utf-8;');
         }
 
-        // 星取表テーブルのテキスト抽出
         function getMatrixTableCSVData(prefix) {
             const table = document.getElementById(`matrix_table_${prefix}`);
             if (!table) return "";
@@ -1261,9 +1268,13 @@
             return rows.join('\n');
         }
 
-        // 4. 決勝トーナメント結果のCSV出力
         function exportTournamentCSV() {
-            let csvContent = "\uFEFF"; // UTF-8 BOM
+            let csvContent = "\uFEFF";
+            const eventName = document.getElementById('cfg-event-name').value;
+            const eventDate = document.getElementById('cfg-event-date').value;
+
+            csvContent += `大会名,"${eventName}"\n`;
+            csvContent += `開催日,"${eventDate}"\n\n`;
             csvContent += "試合名,対戦カード,スコア/結果\n";
 
             const matchesInfo = [
@@ -1280,7 +1291,7 @@
                 csvContent += `"${m.name}","${teamA} vs ${teamB}","${score}"\n`;
             });
 
-            downloadFile(csvContent, `tournament_results.csv`, 'text/csv;charset=utf-8;');
+            downloadFile(csvContent, `tournament_${eventName}.csv`, 'text/csv;charset=utf-8;');
         }
     </script>
 </body>
