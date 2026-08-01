@@ -121,7 +121,7 @@
         .btn-csv-tourn { background: #dd6b20; }
         .btn-pdf-export { background: var(--red); }
 
-        /* チーム名入力エリア（スクロール可能に） */
+        /* チーム名入力エリア */
         .team-inputs-wrapper {
             max-height: 250px;
             overflow-y: auto;
@@ -253,6 +253,7 @@
             gap: 12px;
             max-width: 950px;
             margin: 0 auto 20px auto;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
         }
         .court-card {
             background: var(--card-bg);
@@ -310,28 +311,9 @@
             font-weight: bold;
             padding: 2px 6px;
             border-radius: 4px;
-            margin-left: 6px;
         }
         .res-win { background-color: #e53e3e; color: #fff; }
         .res-draw { background-color: #d69e2e; color: #fff; }
-
-        .vpt-panel {
-            margin-top: 4px;
-            padding: 4px;
-            background: rgba(255, 122, 61, 0.15);
-            border: 1px dashed var(--accent);
-            border-radius: 4px;
-            display: inline-block;
-        }
-        .v-select {
-            background: #ff7a3d;
-            color: #fff;
-            border: none;
-            border-radius: 4px;
-            padding: 2px 4px;
-            font-size: 10px;
-            font-weight: bold;
-        }
 
         /* 星取表 */
         .matrix-table td.self-cell { background-color: #334155; }
@@ -384,15 +366,6 @@
             align-items: center;
             font-weight: bold;
         }
-        .set-scores-flex {
-            display: flex;
-            gap: 10px;
-            justify-content: center;
-            margin-top: 6px;
-            background: #0f172a;
-            padding: 6px;
-            border-radius: 6px;
-        }
 
         /* 🏆 トーナメント表 */
         .tournament-wrapper {
@@ -424,7 +397,7 @@
             position: relative;
         }
         .t-team-node {
-            width: 100px;
+            width: 110px;
             background: #0f172a;
             border: 1px solid var(--border);
             border-radius: 6px;
@@ -436,11 +409,11 @@
             z-index: 2;
         }
         .t-team-node.final-node {
-            width: 110px;
+            width: 120px;
             border-color: var(--gold);
         }
         .t-team-node.third-node {
-            width: 110px;
+            width: 120px;
             border-color: var(--bronze);
         }
         .t-team-label {
@@ -542,7 +515,7 @@
 </head>
 <body>
 
-    <!-- ヘッダー (大会名・開催日表示部) -->
+    <!-- ヘッダー -->
     <div class="header-container">
         <div class="event-date-disp" id="disp-event-date">2026-08-01</div>
         <h1 id="disp-event-name">CLUB TIME SCHEDULE</h1>
@@ -625,15 +598,13 @@
 
         <div class="config-title" style="margin-top: 15px;">チーム名設定</div>
         <div class="team-inputs-wrapper">
-            <div id="team-inputs-container" class="team-inputs-grid">
-                <!-- JSで動的生成 -->
-            </div>
+            <div id="team-inputs-container" class="team-inputs-grid"></div>
         </div>
 
         <button class="btn-primary" onclick="buildApp()">大会構成を適用して再構築</button>
     </div>
 
-    <!-- 予選タイムスケジュール (表示切り替え機能付き) -->
+    <!-- 予選タイムスケジュール -->
     <div class="section-header-flex">
         <div class="section-title">📅 予選リーグ スケジュール & スコア入力</div>
         <div class="view-tab-group">
@@ -642,7 +613,7 @@
         </div>
     </div>
 
-    <!-- 1. 時系列表示用テーブル -->
+    <!-- 1. 時系列表示テーブル -->
     <div class="table-responsive" id="sched-view-timeline">
         <table id="schedule-table">
             <thead>
@@ -655,17 +626,13 @@
                     <th id="th-action" style="width: 50px; display:none;">操作</th>
                 </tr>
             </thead>
-            <tbody id="schedule-tbody">
-                <!-- JSで動的生成 -->
-            </tbody>
+            <tbody id="schedule-tbody"></tbody>
         </table>
     </div>
 
-    <!-- 2. コート別表示用コンテナ -->
+    <!-- 2. コート別表示コンテナ -->
     <div id="sched-view-court" style="display: none;">
-        <div id="court-grid-container" class="court-grid-container">
-            <!-- JSで動的生成 -->
-        </div>
+        <div id="court-grid-container" class="court-grid-container"></div>
     </div>
 
     <div id="manual-add-btn-container" style="display:none; text-align: left; max-width: 950px; margin: -10px auto 15px auto;">
@@ -674,15 +641,11 @@
 
     <!-- 予選星取表エリア -->
     <div class="section-title">⚔️ 予選対戦表（巡別・通算星取表）</div>
-    <div id="matrix-container">
-        <!-- JSで動的生成 -->
-    </div>
+    <div id="matrix-container"></div>
 
     <!-- 決勝トーナメント入力エリア -->
     <div class="section-title">📝 決勝トーナメント スコア入力</div>
-    <div id="tournament-container" class="tourn-card-list">
-        <!-- JSで動的生成 -->
-    </div>
+    <div id="tournament-container" class="tourn-card-list"></div>
 
     <!-- 🏆 決勝トーナメント表（図形表示） -->
     <div class="section-title">🏆 決勝トーナメント表（図）</div>
@@ -757,9 +720,16 @@
             teams: [],
             roundsCount: 1,
             courtsCount: 2,
-            schedMode: 'auto', // 'auto' | 'manual'
-            scheduleView: 'timeline', // 'timeline' | 'court'
-            matches: []
+            schedMode: 'auto',
+            scheduleView: 'timeline',
+            matches: [],
+            tournMatches: [
+                { id: 'sf1', name: '準決勝 1', teamA: null, teamB: null, scoreA: '', scoreB: '', winner: null, loser: null },
+                { id: 'sf2', name: '準決勝 2', teamA: null, teamB: null, scoreA: '', scoreB: '', winner: null, loser: null },
+                { id: 'third', name: '3位決定戦', teamA: null, teamB: null, scoreA: '', scoreB: '', winner: null, loser: null },
+                { id: 'final', name: '決勝戦', teamA: null, teamB: null, scoreA: '', scoreB: '', winner: null, loser: null }
+            ],
+            rankings: []
         };
 
         window.addEventListener('DOMContentLoaded', () => {
@@ -767,12 +737,10 @@
             const today = new Date().toISOString().slice(0, 10);
             document.getElementById('cfg-event-date').value = today;
             updateHeaderInfo();
-
             renderTeamInputs();
             buildApp();
         });
 
-        // 2〜50チームまでのドロップダウン動的生成
         function initTeamSelectOptions() {
             const select = document.getElementById('cfg-teams');
             select.innerHTML = '';
@@ -780,7 +748,7 @@
                 const opt = document.createElement('option');
                 opt.value = i;
                 opt.textContent = `${i}チーム`;
-                if (i === 4) opt.selected = true; // デフォルト4チーム
+                if (i === 4) opt.selected = true;
                 select.appendChild(opt);
             }
         }
@@ -797,10 +765,17 @@
         function toggleSchedModeUI() {
             const mode = document.getElementById('cfg-sched-mode').value;
             const roundsGroup = document.getElementById('cfg-rounds-group');
+            const actionTh = document.getElementById('th-action');
+            const manualAddBtn = document.getElementById('manual-add-btn-container');
+
             if (mode === 'manual') {
                 roundsGroup.style.opacity = '0.5';
+                if(actionTh) actionTh.style.display = 'table-cell';
+                if(manualAddBtn) manualAddBtn.style.display = 'block';
             } else {
                 roundsGroup.style.opacity = '1';
+                if(actionTh) actionTh.style.display = 'none';
+                if(manualAddBtn) manualAddBtn.style.display = 'none';
             }
             buildApp();
         }
@@ -850,7 +825,6 @@
             } else {
                 buildSchedule();
             }
-            renderMatrixes();
             calculateAll();
         }
 
@@ -876,12 +850,9 @@
                 }
             }
 
-            renderMatrixes();
-            buildTournamentInputs();
             calculateAll();
         }
 
-        // 自動スケジュールの生成（コート順に均等分配）
         function buildSchedule() {
             state.matches = [];
             let matchId = 0;
@@ -897,29 +868,31 @@
                             roundNum: r,
                             teamA: i,
                             teamB: j,
-                            court: courtName
+                            court: courtName,
+                            scoreA: '',
+                            scoreB: ''
                         });
                         matchId++;
                     }
                 }
             }
-
             renderSchedule();
         }
 
-        // 手動スケジュールの初期状態作成
         function initDefaultManualMatches() {
             state.matches = [];
             let matchId = 0;
             for (let i = 0; i < state.teams.length; i++) {
                 for (let j = i + 1; j < state.teams.length; j++) {
-                    const courtIdx = matchId % state.courtsCount;
+                    const courtName = COURT_NAMES[matchId % state.courtsCount];
                     state.matches.push({
                         id: matchId,
                         roundNum: 1,
                         teamA: i,
                         teamB: j,
-                        court: COURT_NAMES[courtIdx]
+                        court: courtName,
+                        scoreA: '',
+                        scoreB: ''
                     });
                     matchId++;
                 }
@@ -929,795 +902,414 @@
 
         function addManualMatchRow() {
             const newId = state.matches.length > 0 ? Math.max(...state.matches.map(m => m.id)) + 1 : 0;
-            const courtIdx = newId % state.courtsCount;
             state.matches.push({
                 id: newId,
                 roundNum: 1,
                 teamA: 0,
                 teamB: 1,
-                court: COURT_NAMES[courtIdx]
+                court: COURT_NAMES[0],
+                scoreA: '',
+                scoreB: ''
             });
             renderSchedule();
             calculateAll();
         }
 
-        function removeManualMatchRow(id) {
-            state.matches = state.matches.filter(m => m.id !== id);
+        function deleteManualMatch(matchId) {
+            state.matches = state.matches.filter(m => m.id !== matchId);
             renderSchedule();
             calculateAll();
         }
 
-        // スケジュール全体の描画振分け
         function renderSchedule() {
-            renderScheduleTimeline();
-            renderScheduleCourt();
-        }
-
-        // 1. 時系列スケジュール描画
-        function renderScheduleTimeline() {
             const tbody = document.getElementById('schedule-tbody');
-            const thAction = document.getElementById('th-action');
-            const addBtnContainer = document.getElementById('manual-add-btn-container');
+            const courtContainer = document.getElementById('court-grid-container');
 
-            // 現在の入力値を保持
-            const currentScores = {};
-            state.matches.forEach(m => {
-                currentScores[`${m.id}_a`] = document.getElementById(`s_${m.id}_a`)?.value;
-                currentScores[`${m.id}_b`] = document.getElementById(`s_${m.id}_b`)?.value;
-            });
+            // 1. 時系列ビューの描画
+            let html = '';
+            state.matches.forEach((m, idx) => {
+                const teamAOpt = state.teams.map((t, i) => `<option value="${i}" ${m.teamA === i ? 'selected' : ''}>${t}</option>`).join('');
+                const teamBOpt = state.teams.map((t, i) => `<option value="${i}" ${m.teamB === i ? 'selected' : ''}>${t}</option>`).join('');
+                const courtOpt = COURT_NAMES.slice(0, state.courtsCount).map(c => `<option value="${c}" ${m.court === c ? 'selected' : ''}>${c}コート</option>`).join('');
 
-            tbody.innerHTML = '';
+                const isManual = state.schedMode === 'manual';
 
-            if (state.schedMode === 'manual') {
-                thAction.style.display = '';
-                addBtnContainer.style.display = 'block';
-
-                state.matches.forEach((m, idx) => {
-                    const tr = document.createElement('tr');
-                    
-                    let courtOptions = '';
-                    for (let c = 0; c < state.courtsCount; c++) {
-                        const cName = COURT_NAMES[c];
-                        const sel = m.court === cName ? 'selected' : '';
-                        courtOptions += `<option value="${cName}" ${sel}>${cName}コート</option>`;
-                    }
-
-                    let teamAOpts = '', teamBOpts = '';
-                    state.teams.forEach((tName, tIdx) => {
-                        teamAOpts += `<option value="${tIdx}" ${m.teamA == tIdx ? 'selected' : ''}>${tName}</option>`;
-                        teamBOpts += `<option value="${tIdx}" ${m.teamB == tIdx ? 'selected' : ''}>${tName}</option>`;
-                    });
-
-                    const valA = currentScores[`${m.id}_a`] !== undefined ? currentScores[`${m.id}_a`] : '';
-                    const valB = currentScores[`${m.id}_b`] !== undefined ? currentScores[`${m.id}_b`] : '';
-
-                    tr.innerHTML = `
+                html += `
+                    <tr>
                         <td>
-                            <select class="match-select" onchange="updateManualMatch(${m.id}, 'court', this.value)">
-                                ${courtOptions}
-                            </select>
+                            ${isManual ? `<select class="match-select" onchange="updateMatchMeta(${m.id}, 'court', this.value)">${courtOpt}</select>` : `<span class="court-badge court-${m.court}">${m.court}コート</span>`}
                         </td>
                         <td>第${idx + 1}試合</td>
                         <td>
-                            <select class="match-select" onchange="updateManualMatch(${m.id}, 'teamA', this.value)">${teamAOpts}</select>
-                            vs
-                            <select class="match-select" onchange="updateManualMatch(${m.id}, 'teamB', this.value)">${teamBOpts}</select>
+                            ${isManual ? `<select class="match-select" onchange="updateMatchMeta(${m.id}, 'teamA', parseInt(this.value,10))">${teamAOpt}</select> vs <select class="match-select" onchange="updateMatchMeta(${m.id}, 'teamB', parseInt(this.value,10))">${teamBOpt}</select>` : `${state.teams[m.teamA]} vs ${state.teams[m.teamB]}`}
                         </td>
                         <td>
-                            <input type="number" class="score-input" id="s_${m.id}_a" value="${valA}" oninput="syncScoreInput(${m.id}, 'a', this.value)" min="0"> - 
-                            <input type="number" class="score-input" id="s_${m.id}_b" value="${valB}" oninput="syncScoreInput(${m.id}, 'b', this.value)" min="0">
+                            <input type="number" class="score-input" id="score-a-${m.id}" value="${m.scoreA ?? ''}" oninput="updateScore(${m.id})"> - 
+                            <input type="number" class="score-input" id="score-b-${m.id}" value="${m.scoreB ?? ''}" oninput="updateScore(${m.id})">
                         </td>
-                        <td id="res_disp_${m.id}">-</td>
-                        <td>
-                            <button class="btn-danger" onclick="removeManualMatchRow(${m.id})">削除</button>
-                        </td>
-                    `;
-                    tbody.appendChild(tr);
-                });
-            } else {
-                thAction.style.display = 'none';
-                addBtnContainer.style.display = 'none';
-
-                state.matches.forEach((m, idx) => {
-                    const tr = document.createElement('tr');
-                    const valA = currentScores[`${m.id}_a`] !== undefined ? currentScores[`${m.id}_a`] : '';
-                    const valB = currentScores[`${m.id}_b`] !== undefined ? currentScores[`${m.id}_b`] : '';
-
-                    tr.innerHTML = `
-                        <td><span class="court-badge court-${m.court}">${m.court}コート</span></td>
-                        <td>第${idx + 1}試合<br><span style="font-size:9px; color:var(--sub-text);">${m.roundNum}巡目</span></td>
-                        <td>${state.teams[m.teamA]} vs ${state.teams[m.teamB]}</td>
-                        <td>
-                            <input type="number" class="score-input" id="s_${m.id}_a" value="${valA}" oninput="syncScoreInput(${m.id}, 'a', this.value)" min="0"> - 
-                            <input type="number" class="score-input" id="s_${m.id}_b" value="${valB}" oninput="syncScoreInput(${m.id}, 'b', this.value)" min="0">
-                        </td>
-                        <td id="res_disp_${m.id}">-</td>
-                    `;
-                    tbody.appendChild(tr);
-                });
-            }
-        }
-
-        // 2. コート別スケジュール描画
-        function renderScheduleCourt() {
-            const container = document.getElementById('court-grid-container');
-            container.style.gridTemplateColumns = `repeat(auto-fit, minmax(${300}px, 1fr))`;
-
-            // 入力値を保持
-            const currentScores = {};
-            state.matches.forEach(m => {
-                currentScores[`${m.id}_a`] = document.getElementById(`s_${m.id}_a`)?.value || document.getElementById(`cs_${m.id}_a`)?.value || '';
-                currentScores[`${m.id}_b`] = document.getElementById(`s_${m.id}_b`)?.value || document.getElementById(`cs_${m.id}_b`)?.value || '';
+                        <td id="res-disp-${m.id}">${getMatchResultBadge(m)}</td>
+                        ${isManual ? `<td><button class="btn-danger" onclick="deleteManualMatch(${m.id})">削除</button></td>` : ''}
+                    </tr>
+                `;
             });
+            tbody.innerHTML = html;
 
-            let html = '';
+            // 2. コート別ビューの描画
+            let courtHtml = '';
             for (let c = 0; c < state.courtsCount; c++) {
                 const cName = COURT_NAMES[c];
                 const courtMatches = state.matches.filter(m => m.court === cName);
 
-                html += `
+                courtHtml += `
                     <div class="court-card">
-                        <div class="court-card-header court-${cName}">${cName}コート (${courtMatches.length}試合)</div>
-                        <div class="table-responsive" style="margin:0;">
-                            <table>
-                                <thead>
-                                    <tr>
-                                        <th style="width: 50px;">順</th>
-                                        <th>対戦カード</th>
-                                        <th style="width: 110px;">スコア</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
+                        <div class="court-card-header court-${cName}">${cName}コート</div>
+                        <table>
+                            <thead><tr><th>試合</th><th>対戦カード</th><th>スコア</th></tr></thead>
+                            <tbody>
                 `;
-
-                if (courtMatches.length === 0) {
-                    html += `<tr><td colspan="3" style="color:var(--sub-text);">予定なし</td></tr>`;
-                } else {
-                    courtMatches.forEach((m, idx) => {
-                        const valA = currentScores[`${m.id}_a`] || '';
-                        const valB = currentScores[`${m.id}_b`] || '';
-
-                        html += `
-                            <tr>
-                                <td>第${idx + 1}枠</td>
-                                <td>${state.teams[m.teamA]} vs ${state.teams[m.teamB]}</td>
-                                <td>
-                                    <input type="number" class="score-input" id="cs_${m.id}_a" value="${valA}" oninput="syncScoreInput(${m.id}, 'a', this.value)" min="0"> - 
-                                    <input type="number" class="score-input" id="cs_${m.id}_b" value="${valB}" oninput="syncScoreInput(${m.id}, 'b', this.value)" min="0">
-                                </td>
-                            </tr>
-                        `;
-                    });
-                }
-
-                html += `
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                `;
+                courtMatches.forEach((m) => {
+                    courtHtml += `
+                        <tr>
+                            <td>第${m.id + 1}試合</td>
+                            <td>${state.teams[m.teamA]} vs ${state.teams[m.teamB]}</td>
+                            <td>${m.scoreA !== '' && m.scoreA !== null ? `${m.scoreA} - ${m.scoreB}` : '-'}</td>
+                        </tr>
+                    `;
+                });
+                courtHtml += `</tbody></table></div>`;
             }
-            container.innerHTML = html;
+            courtContainer.innerHTML = courtHtml;
         }
 
-        // 時系列とコート別のスコア入力同期
-        function syncScoreInput(matchId, teamKey, val) {
-            const mainEl = document.getElementById(`s_${matchId}_${teamKey}`);
-            const courtEl = document.getElementById(`cs_${matchId}_${teamKey}`);
+        function getMatchResultBadge(m) {
+            if (m.scoreA === '' || m.scoreB === '' || m.scoreA === null || m.scoreB === null) return '-';
+            const sA = parseInt(m.scoreA, 10);
+            const sB = parseInt(m.scoreB, 10);
+            if (sA > sB) return `<span class="res-badge res-win">${state.teams[m.teamA]} 勝</span>`;
+            if (sB > sA) return `<span class="res-badge res-win">${state.teams[m.teamB]} 勝</span>`;
+            return `<span class="res-badge res-draw">引き分け</span>`;
+        }
 
-            if (mainEl && mainEl.value !== val) mainEl.value = val;
-            if (courtEl && courtEl.value !== val) courtEl.value = val;
+        function updateMatchMeta(matchId, key, value) {
+            const m = state.matches.find(item => item.id === matchId);
+            if (m) {
+                m[key] = value;
+                calculateAll();
+            }
+        }
+
+        function updateScore(matchId) {
+            const m = state.matches.find(item => item.id === matchId);
+            if (!m) return;
+
+            const valA = document.getElementById(`score-a-${matchId}`).value;
+            const valB = document.getElementById(`score-b-${matchId}`).value;
+
+            m.scoreA = valA !== '' ? parseInt(valA, 10) : '';
+            m.scoreB = valB !== '' ? parseInt(valB, 10) : '';
+
+            const resDisp = document.getElementById(`res-disp-${matchId}`);
+            if (resDisp) resDisp.innerHTML = getMatchResultBadge(m);
 
             calculateAll();
         }
 
-        function updateManualMatch(id, field, value) {
-            const match = state.matches.find(m => m.id === id);
-            if (match) {
-                if (field === 'court') match.court = value;
-                if (field === 'teamA') match.teamA = parseInt(value, 10);
-                if (field === 'teamB') match.teamB = parseInt(value, 10);
-            }
-            renderSchedule();
-            calculateAll();
-        }
+        // 星取表と通算成績の計算
+        function calculateAll() {
+            const teamCount = state.teams.length;
+            let stats = state.teams.map((name, idx) => ({
+                id: idx,
+                name: name,
+                win: 0,
+                draw: 0,
+                loss: 0,
+                points: 0,
+                scoreFor: 0,
+                scoreAgainst: 0,
+                diff: 0
+            }));
 
-        function renderMatrixes() {
-            const container = document.getElementById('matrix-container');
-            container.innerHTML = '';
+            // 星取表用対戦結果行列
+            let grid = Array.from({ length: teamCount }, () => Array(teamCount).fill(null));
 
-            let html = '';
-            if (state.schedMode === 'auto') {
-                for (let r = 1; r <= state.roundsCount; r++) {
-                    html += `<div class="matrix-title">■ 第 ${r} 巡目 対戦表</div>`;
-                    html += `<div class="table-responsive">${renderSingleMatrixTable(`r${r}`)}</div>`;
+            state.matches.forEach(m => {
+                if (m.scoreA !== '' && m.scoreB !== '' && m.scoreA !== null && m.scoreB !== null) {
+                    const sA = parseInt(m.scoreA, 10);
+                    const sB = parseInt(m.scoreB, 10);
+
+                    // 得失点追加
+                    stats[m.teamA].scoreFor += sA;
+                    stats[m.teamA].scoreAgainst += sB;
+                    stats[m.teamB].scoreFor += sB;
+                    stats[m.teamB].scoreAgainst += sA;
+
+                    if (sA > sB) {
+                        stats[m.teamA].win += 1;
+                        stats[m.teamA].points += 3;
+                        stats[m.teamB].loss += 1;
+                        grid[m.teamA][m.teamB] = { res: '○', sA, sB };
+                        grid[m.teamB][m.teamA] = { res: '●', sA: sB, sB: sA };
+                    } else if (sB > sA) {
+                        stats[m.teamB].win += 1;
+                        stats[m.teamB].points += 3;
+                        stats[m.teamA].loss += 1;
+                        grid[m.teamA][m.teamB] = { res: '●', sA, sB };
+                        grid[m.teamB][m.teamA] = { res: '○', sA: sB, sB: sA };
+                    } else {
+                        stats[m.teamA].draw += 1;
+                        stats[m.teamA].points += 1;
+                        stats[m.teamB].draw += 1;
+                        stats[m.teamB].points += 1;
+                        grid[m.teamA][m.teamB] = { res: '△', sA, sB };
+                        grid[m.teamB][m.teamA] = { res: '△', sA: sB, sB: sA };
+                    }
                 }
-                if (state.roundsCount > 1) {
-                    html += `<div class="matrix-title total">🏆 予選 通算対戦表</div>`;
-                    html += `<div class="table-responsive">${renderSingleMatrixTable('total')}</div>`;
-                }
-            } else {
-                html += `<div class="matrix-title total">🏆 予選 星取表</div>`;
-                html += `<div class="table-responsive">${renderSingleMatrixTable('total')}</div>`;
-            }
-
-            container.innerHTML = html;
-        }
-
-        function renderSingleMatrixTable(prefix) {
-            let html = `<table class="matrix-table" id="matrix_table_${prefix}"><thead><tr><th>チーム</th>`;
-            state.teams.forEach((_, tIdx) => {
-                html += `<th>${state.teams[tIdx]}</th>`;
             });
-            html += `<th class="stats-hdr">勝</th><th class="stats-hdr">分</th><th class="stats-hdr">負</th><th class="stats-hdr">勝点</th><th class="stats-hdr">自内野</th><th class="stats-hdr">相内野</th><th class="rank-hdr">順位</th></tr></thead><tbody>`;
 
-            state.teams.forEach((_, rIdx) => {
-                html += `<tr><td style="font-weight:bold; text-align:left;">${state.teams[rIdx]}</td>`;
-                state.teams.forEach((_, cIdx) => {
-                    if (rIdx === cIdx) {
+            stats.forEach(st => st.diff = st.scoreFor - st.scoreAgainst);
+
+            // 順位ソート（勝ち点 > 得失点差 > 総得点）
+            let rankedStats = [...stats].sort((a, b) => {
+                if (b.points !== a.points) return b.points - a.points;
+                if (b.diff !== a.diff) return b.diff - a.diff;
+                return b.scoreFor - a.scoreFor;
+            });
+
+            rankedStats.forEach((st, rankIdx) => {
+                const orig = stats.find(item => item.id === st.id);
+                if (orig) orig.rank = rankIdx + 1;
+            });
+
+            state.rankings = rankedStats;
+
+            renderMatrixTable(grid, stats);
+            autoSetTournamentFromMatrix(rankedStats);
+        }
+
+        function renderMatrixTable(grid, stats) {
+            const container = document.getElementById('matrix-container');
+            let html = `
+                <div class="table-responsive">
+                    <table class="matrix-table">
+                        <thead>
+                            <tr>
+                                <th>チーム名</th>
+                                ${state.teams.map(t => `<th>${t}</th>`).join('')}
+                                <th class="stats-hdr">勝</th>
+                                <th class="stats-hdr">引</th>
+                                <th class="stats-hdr">負</th>
+                                <th class="stats-hdr">点</th>
+                                <th class="stats-hdr">差</th>
+                                <th class="rank-hdr">順位</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+            `;
+
+            state.teams.forEach((tName, i) => {
+                const st = stats[i];
+                html += `<tr><td style="font-weight:bold; text-align:left;">${tName}</td>`;
+                state.teams.forEach((_, j) => {
+                    if (i === j) {
                         html += `<td class="self-cell">-</td>`;
                     } else {
-                        html += `<td id="m_${prefix}_cell_${rIdx}_${cIdx}" class="cell-res">-</td>`;
+                        const cell = grid[i][j];
+                        if (cell) {
+                            html += `<td class="cell-res">${cell.res}<br><small>${cell.sA}-${cell.sB}</small></td>`;
+                        } else {
+                            html += `<td>-</td>`;
+                        }
                     }
                 });
-                html += `<td id="st_${prefix}_w_${rIdx}">0</td><td id="st_${prefix}_d_${rIdx}">0</td><td id="st_${prefix}_l_${rIdx}">0</td>
-                         <td id="st_${prefix}_pts_${rIdx}" style="font-weight:bold; color:var(--gold);">0</td>
-                         <td id="st_${prefix}_myin_${rIdx}" style="font-weight:bold; color:var(--accent2);">0</td>
-                         <td id="st_${prefix}_oppin_${rIdx}">0</td>
-                         <td id="st_${prefix}_rank_${rIdx}" style="font-weight:bold;">-</td></tr>`;
+                html += `
+                    <td>${st.win}</td>
+                    <td>${st.draw}</td>
+                    <td>${st.loss}</td>
+                    <td style="font-weight:bold; color:var(--accent2);">${st.points}</td>
+                    <td>${st.diff > 0 ? '+' + st.diff : st.diff}</td>
+                    <td style="font-weight:bold; color:var(--gold);">${st.rank ? st.rank + '位' : '-'}</td>
+                </tr>`;
             });
 
-            html += `</tbody></table>`;
-            return html;
-        }
-
-        function checkIs3Sets(roundLevel, setsRule) {
-            if (setsRule === 'none') return false;
-            if (setsRule === 'all') return true;
-            if (setsRule === 'qf') return ['qf', 'semi', 'final', 'third'].includes(roundLevel);
-            if (setsRule === 'semi') return ['semi', 'final', 'third'].includes(roundLevel);
-            if (setsRule === 'final') return roundLevel === 'final';
-            return false;
-        }
-
-        function buildTournamentInputs() {
-            const container = document.getElementById('tournament-container');
-            container.innerHTML = '';
-            
-            const setsRule = document.getElementById('cfg-sets-rule').value;
-            const isSemi3Sets = checkIs3Sets('semi', setsRule);
-            const isThird3Sets = checkIs3Sets('third', setsRule);
-            const isFinal3Sets = checkIs3Sets('final', setsRule);
-
-            let html = `
-                <div class="tourn-match-card">
-                    <div class="tourn-match-header">
-                        <span>🏆 準決勝 第1試合</span>
-                        <span>${isSemi3Sets ? '3セットマッチ' : '1セットマッチ'}</span>
-                    </div>
-                    <div class="tourn-match-body">
-                        <span id="t_m1_ta">準決1(左)</span>
-                        <span style="color:var(--sub-text); font-size:12px;"> vs </span>
-                        <span id="t_m1_tb">準決1(右)</span>
-                    </div>
-                    ${renderSetInputs('m1', isSemi3Sets)}
-                </div>
-
-                <div class="tourn-match-card">
-                    <div class="tourn-match-header">
-                        <span>🏆 準決勝 第2試合 (シード枠)</span>
-                        <span>${isSemi3Sets ? '3セットマッチ' : '1セットマッチ'}</span>
-                    </div>
-                    <div class="tourn-match-body">
-                        <span id="t_m2_ta">準決2(左)</span>
-                        <span style="color:var(--sub-text); font-size:12px;"> vs </span>
-                        <span id="t_m2_tb">準決2(右)</span>
-                    </div>
-                    ${renderSetInputs('m2', isSemi3Sets)}
-                </div>
-
-                <div class="tourn-match-card" style="border-color: var(--bronze);">
-                    <div class="tourn-match-header">
-                        <span style="color:var(--bronze); font-weight:bold;">🥉 3位決定戦</span>
-                        <span>${isThird3Sets ? '3セットマッチ' : '1セットマッチ'}</span>
-                    </div>
-                    <div class="tourn-match-body">
-                        <span id="t_m3_ta">3位枠(左)</span>
-                        <span style="color:var(--sub-text); font-size:12px;"> vs </span>
-                        <span id="t_m3_tb">3位枠(右)</span>
-                    </div>
-                    ${renderSetInputs('m3', isThird3Sets)}
-                </div>
-
-                <div class="tourn-match-card" style="border-color: var(--gold);">
-                    <div class="tourn-match-header">
-                        <span style="color:var(--gold); font-weight:bold;">🥇 決勝戦</span>
-                        <span>${isFinal3Sets ? '3セットマッチ' : '1セットマッチ'}</span>
-                    </div>
-                    <div class="tourn-match-body">
-                        <span id="t_mf_ta">決勝(左)</span>
-                        <span style="color:var(--sub-text); font-size:12px;"> vs </span>
-                        <span id="t_mf_tb">決勝(右)</span>
-                    </div>
-                    ${renderSetInputs('mf', isFinal3Sets)}
-                </div>
-            `;
+            html += `</tbody></table></div>`;
             container.innerHTML = html;
         }
 
-        function renderSetInputs(matchKey, is3Sets) {
-            const setsCount = is3Sets ? 3 : 1;
-            let html = '<div class="set-scores-flex">';
-            for (let s = 1; s <= setsCount; s++) {
+        // 予選順位から決勝トーナメントへ対戦カードを自動セット
+        function autoSetTournamentFromMatrix(rankedTeams) {
+            const top4 = [
+                rankedTeams[0] ? rankedTeams[0].name : "予選1位",
+                rankedTeams[1] ? rankedTeams[1].name : "予選2位",
+                rankedTeams[2] ? rankedTeams[2].name : "予選3位",
+                rankedTeams[3] ? rankedTeams[3].name : "予選4位"
+            ];
+
+            // 準決勝1: 1位 vs 4位
+            state.tournMatches[0].teamA = top4[0];
+            state.tournMatches[0].teamB = top4[3];
+
+            // 準決勝2: 2位 vs 3位
+            state.tournMatches[1].teamA = top4[1];
+            state.tournMatches[1].teamB = top4[2];
+
+            // 勝敗計算＆3位決定戦/決勝のチーム自動アサイン
+            updateTournamentProgress();
+            renderTournamentInputs();
+            renderTournamentTree();
+        }
+
+        function updateTournamentProgress() {
+            const sf1 = state.tournMatches[0];
+            const sf2 = state.tournMatches[1];
+            const third = state.tournMatches[2];
+            const final = state.tournMatches[3];
+
+            // 準決勝1 勝敗
+            if (sf1.scoreA !== '' && sf1.scoreB !== '') {
+                if (parseInt(sf1.scoreA) > parseInt(sf1.scoreB)) {
+                    sf1.winner = sf1.teamA; sf1.loser = sf1.teamB;
+                } else if (parseInt(sf1.scoreB) > parseInt(sf1.scoreA)) {
+                    sf1.winner = sf1.teamB; sf1.loser = sf1.teamA;
+                }
+            } else { sf1.winner = null; sf1.loser = null; }
+
+            // 準決勝2 勝敗
+            if (sf2.scoreA !== '' && sf2.scoreB !== '') {
+                if (parseInt(sf2.scoreA) > parseInt(sf2.scoreB)) {
+                    sf2.winner = sf2.teamA; sf2.loser = sf2.teamB;
+                } else if (parseInt(sf2.scoreB) > parseInt(sf2.scoreA)) {
+                    sf2.winner = sf2.teamB; sf2.loser = sf2.teamA;
+                }
+            } else { sf2.winner = null; sf2.loser = null; }
+
+            // 決勝戦・3位決定戦の対戦相手セット
+            final.teamA = sf1.winner || "準決勝1勝者";
+            final.teamB = sf2.winner || "準決勝2勝者";
+
+            third.teamA = sf1.loser || "準決勝1敗者";
+            third.teamB = sf2.loser || "準決勝2敗者";
+        }
+
+        function renderTournamentInputs() {
+            const container = document.getElementById('tournament-container');
+            let html = '';
+
+            state.tournMatches.forEach((m) => {
                 html += `
-                    <div style="font-size:10px;">
-                        Set${s}<br>
-                        <input type="number" class="score-input" id="ts_${matchKey}_s${s}_a" oninput="calculateAll()" min="0"> - 
-                        <input type="number" class="score-input" id="ts_${matchKey}_s${s}_b" oninput="calculateAll()" min="0">
-                        <div id="v_${matchKey}_s${s}_panel" class="vpt-panel" style="display:none;">
-                            <select id="v_${matchKey}_s${s}_win" class="v-select" onchange="calculateAll()">
-                                <option value="">Vpt</option>
-                                <option value="A">左勝</option>
-                                <option value="B">右勝</option>
-                            </select>
+                    <div class="tourn-match-card">
+                        <div class="tourn-match-header">
+                            <span>${m.name}</span>
+                        </div>
+                        <div class="tourn-match-body">
+                            <span style="width:120px; text-align:right;">${m.teamA || '-'}</span>
+                            <div>
+                                <input type="number" class="score-input" value="${m.scoreA ?? ''}" oninput="onTournScoreChange('${m.id}', 'A', this.value)"> - 
+                                <input type="number" class="score-input" value="${m.scoreB ?? ''}" oninput="onTournScoreChange('${m.id}', 'B', this.value)">
+                            </div>
+                            <span style="width:120px; text-align:left;">${m.teamB || '-'}</span>
                         </div>
                     </div>
                 `;
-            }
-            html += '</div>';
-            return html;
-        }
-
-        function addStats(stA, stB, sa, sb) {
-            stA.myIn += sa;
-            stA.oppIn += sb;
-            stB.myIn += sb;
-            stB.oppIn += sa;
-
-            if (sa > sb) {
-                stA.win++; stA.pts += 2;
-                stB.lose++;
-            } else if (sb > sa) {
-                stB.win++; stB.pts += 2;
-                stA.lose++;
-            } else {
-                stA.draw++; stA.pts += 1;
-                stB.draw++; stB.pts += 1;
-            }
-        }
-
-        function updateMatrixUI(prefix, statsArray, cellsObj, isTotal) {
-            let ranked = [...statsArray].sort((a, b) => b.pts - a.pts || b.myIn - a.myIn);
-            let rankMap = {};
-            ranked.forEach((item, idx) => {
-                rankMap[item.id] = idx + 1;
             });
 
-            statsArray.forEach((st, i) => {
-                statsArray.forEach((_, j) => {
-                    if (i !== j) {
-                        const cell = document.getElementById(`m_${prefix}_cell_${i}_${j}`);
-                        if (cell) {
-                            if (isTotal) {
-                                const list = cellsObj[`${i}_${j}`] || [];
-                                cell.innerHTML = list.length > 0 ? list.join('<br>') : '-';
-                            } else {
-                                cell.innerText = cellsObj[`${i}_${j}`] || '-';
-                            }
-                        }
-                    }
-                });
-
-                const wEl = document.getElementById(`st_${prefix}_w_${i}`);
-                if (wEl) wEl.innerText = st.win;
-                const dEl = document.getElementById(`st_${prefix}_d_${i}`);
-                if (dEl) dEl.innerText = st.draw;
-                const lEl = document.getElementById(`st_${prefix}_l_${i}`);
-                if (lEl) lEl.innerText = st.lose;
-                const ptsEl = document.getElementById(`st_${prefix}_pts_${i}`);
-                if (ptsEl) ptsEl.innerText = st.pts;
-                const myInEl = document.getElementById(`st_${prefix}_myin_${i}`);
-                if (myInEl) myInEl.innerText = st.myIn;
-                const oppInEl = document.getElementById(`st_${prefix}_oppin_${i}`);
-                if (oppInEl) oppInEl.innerText = st.oppIn;
-                const rankEl = document.getElementById(`st_${prefix}_rank_${i}`);
-                if (rankEl) rankEl.innerText = `${rankMap[st.id]}位`;
-            });
+            container.innerHTML = html;
         }
 
-        function getTournMatchResult(matchKey, is3Sets, teamA, teamB) {
-            const setsCount = is3Sets ? 3 : 1;
-            let winA = 0, winB = 0;
-            let setDetails = [];
-
-            for (let s = 1; s <= setsCount; s++) {
-                const saEl = document.getElementById(`ts_${matchKey}_s${s}_a`);
-                const sbEl = document.getElementById(`ts_${matchKey}_s${s}_b`);
-                const panel = document.getElementById(`v_${matchKey}_s${s}_panel`);
-                const vSelect = document.getElementById(`v_${matchKey}_s${s}_win`);
-
-                if (saEl && sbEl && saEl.value !== '' && sbEl.value !== '') {
-                    const sa = parseInt(saEl.value, 10);
-                    const sb = parseInt(sbEl.value, 10);
-
-                    if (sa > sb) {
-                        winA++;
-                        if (panel) panel.style.display = 'none';
-                        setDetails.push(`${sa}-${sb}`);
-                    } else if (sb > sa) {
-                        winB++;
-                        if (panel) panel.style.display = 'none';
-                        setDetails.push(`${sa}-${sb}`);
-                    } else {
-                        if (panel) panel.style.display = 'inline-block';
-                        const vWin = vSelect ? vSelect.value : '';
-                        if (vWin === 'A') {
-                            winA++;
-                            setDetails.push(`${sa}v(${sa})-${sb}`);
-                        } else if (vWin === 'B') {
-                            winB++;
-                            setDetails.push(`${sa}-(${sb})${sb}v`);
-                        } else {
-                            setDetails.push(`${sa}-${sb}(Vpt未決)`);
-                        }
-                    }
-                }
+        function onTournScoreChange(matchId, teamKey, value) {
+            const m = state.tournMatches.find(item => item.id === matchId);
+            if (m) {
+                m[`score${teamKey}`] = value !== '' ? parseInt(value, 10) : '';
+                updateTournamentProgress();
+                renderTournamentInputs();
+                renderTournamentTree();
             }
-
-            let dispText = '- vs -';
-            let winner = '-', loser = '-';
-
-            if (setDetails.length > 0) {
-                if (is3Sets) {
-                    dispText = `(${winA}) ${setDetails.join(' / ')} (${winB})`;
-                    if (winA >= 2) { winner = teamA; loser = teamB; }
-                    else if (winB >= 2) { winner = teamB; loser = teamA; }
-                } else {
-                    dispText = setDetails[0];
-                    if (winA > winB) { winner = teamA; loser = teamB; }
-                    else if (winB > winA) { winner = teamB; loser = teamA; }
-                }
-            }
-
-            return { winner, loser, dispText };
         }
 
-        function calculateAll() {
-            const targetMode = document.getElementById('cfg-target-round').value;
+        function renderTournamentTree() {
+            const sf1 = state.tournMatches[0];
+            const sf2 = state.tournMatches[1];
+            const third = state.tournMatches[2];
+            const final = state.tournMatches[3];
 
-            let statsRounds = {};
-            let cellsRounds = {};
-            if (state.schedMode === 'auto') {
-                for (let r = 1; r <= state.roundsCount; r++) {
-                    statsRounds[r] = state.teams.map((name, i) => ({ id: i, name, pts: 0, win: 0, draw: 0, lose: 0, myIn: 0, oppIn: 0 }));
-                    cellsRounds[r] = {};
-                }
-            }
+            // 準決勝 1
+            document.getElementById('t-semi1-a').innerText = sf1.teamA || '-';
+            document.getElementById('t-semi1-b').innerText = sf1.teamB || '-';
+            document.getElementById('disp-semi1-score').innerText = (sf1.scoreA !== '' && sf1.scoreB !== '') ? `${sf1.scoreA} - ${sf1.scoreB}` : '- vs -';
 
-            let statsTotal = state.teams.map((name, i) => ({ id: i, name, pts: 0, win: 0, draw: 0, lose: 0, myIn: 0, oppIn: 0 }));
-            let cellsTotal = {};
+            // 準決勝 2
+            document.getElementById('t-semi2-a').innerText = sf2.teamA || '-';
+            document.getElementById('t-semi2-b').innerText = sf2.teamB || '-';
+            document.getElementById('disp-semi2-score').innerText = (sf2.scoreA !== '' && sf2.scoreB !== '') ? `${sf2.scoreA} - ${sf2.scoreB}` : '- vs -';
 
-            state.matches.forEach(m => {
-                const saEl = document.getElementById(`s_${m.id}_a`) || document.getElementById(`cs_${m.id}_a`);
-                const sbEl = document.getElementById(`s_${m.id}_b`) || document.getElementById(`cs_${m.id}_b`);
-                const resDispEl = document.getElementById(`res_disp_${m.id}`);
+            // 決勝
+            document.getElementById('t-final-teamA').innerText = final.teamA || '-';
+            document.getElementById('t-final-teamB').innerText = final.teamB || '-';
+            document.getElementById('disp-final-score').innerText = (final.scoreA !== '' && final.scoreB !== '') ? `${final.scoreA} - ${final.scoreB}` : '- vs -';
 
-                if (saEl && sbEl && saEl.value !== '' && sbEl.value !== '') {
-                    const sa = parseInt(saEl.value, 10);
-                    const sb = parseInt(sbEl.value, 10);
-
-                    const teamAName = state.teams[m.teamA] || `チーム${m.teamA + 1}`;
-                    const teamBName = state.teams[m.teamB] || `チーム${m.teamB + 1}`;
-
-                    if (resDispEl) {
-                        if (sa > sb) {
-                            resDispEl.innerHTML = `<span style="color:#fff;">${teamAName}</span><span class="res-badge res-win">勝</span>`;
-                        } else if (sb > sa) {
-                            resDispEl.innerHTML = `<span style="color:#fff;">${teamBName}</span><span class="res-badge res-win">勝</span>`;
-                        } else {
-                            resDispEl.innerHTML = `<span class="res-badge res-draw">引き分け</span>`;
-                        }
-                    }
-
-                    if (m.teamA !== m.teamB) {
-                        if (state.schedMode === 'auto') {
-                            const r = m.roundNum;
-                            addStats(statsRounds[r][m.teamA], statsRounds[r][m.teamB], sa, sb);
-
-                            let symA = sa > sb ? '◯' : (sa < sb ? '●' : '△');
-                            let symB = sb > sa ? '◯' : (sb < sa ? '●' : '△');
-                            cellsRounds[r][`${m.teamA}_${m.teamB}`] = `${symA}${sa}-${sb}`;
-                            cellsRounds[r][`${m.teamB}_${m.teamA}`] = `${symB}${sb}-${sa}`;
-                        }
-
-                        addStats(statsTotal[m.teamA], statsTotal[m.teamB], sa, sb);
-
-                        let symA = sa > sb ? '◯' : (sa < sb ? '●' : '△');
-                        let symB = sb > sa ? '◯' : (sb < sa ? '●' : '△');
-
-                        if (!cellsTotal[`${m.teamA}_${m.teamB}`]) cellsTotal[`${m.teamA}_${m.teamB}`] = [];
-                        if (!cellsTotal[`${m.teamB}_${m.teamA}`]) cellsTotal[`${m.teamB}_${m.teamA}`] = [];
-                        cellsTotal[`${m.teamA}_${m.teamB}`].push(`${symA}${sa}-${sb}`);
-                        cellsTotal[`${m.teamB}_${m.teamA}`].push(`${symB}${sb}-${sa}`);
-                    }
-                } else {
-                    if (resDispEl) resDispEl.innerText = '-';
-                }
-            });
-
-            if (state.schedMode === 'auto') {
-                for (let r = 1; r <= state.roundsCount; r++) {
-                    updateMatrixUI(`r${r}`, statsRounds[r], cellsRounds[r], false);
-                }
-                if (state.roundsCount > 1) {
-                    updateMatrixUI('total', statsTotal, cellsTotal, true);
-                }
-            } else {
-                updateMatrixUI('total', statsTotal, cellsTotal, true);
-            }
-
-            let sortedTarget = [];
-            if (state.schedMode === 'auto' && targetMode === 'last') {
-                sortedTarget = [...statsRounds[state.roundsCount]].sort((a,b) => b.pts - a.pts || b.myIn - a.myIn);
-            } else {
-                sortedTarget = [...statsTotal].sort((a,b) => b.pts - a.pts || b.myIn - a.myIn);
-            }
-
-            const t1 = sortedTarget[0]?.name || '予選1位';
-            const t2 = sortedTarget[1]?.name || '予選2位';
-            const t3 = sortedTarget[2]?.name || '予選3位';
-            const t4 = sortedTarget[3]?.name || '予選4位';
-
-            const m1A = document.getElementById('t_m1_ta'); if (m1A) m1A.innerText = t1;
-            const m1B = document.getElementById('t_m1_tb'); if (m1B) m1B.innerText = t4;
-            const m2A = document.getElementById('t_m2_ta'); if (m2A) m2A.innerText = t2;
-            const m2B = document.getElementById('t_m2_tb'); if (m2B) m2B.innerText = t3;
-
-            document.getElementById('t-semi1-a').innerText = t1;
-            document.getElementById('t-semi1-b').innerText = t4;
-            document.getElementById('t-semi2-a').innerText = t2;
-            document.getElementById('t-semi2-b').innerText = t3;
-
-            const setsRule = document.getElementById('cfg-sets-rule').value;
-            const isSemi3Sets = checkIs3Sets('semi', setsRule);
-            const isThird3Sets = checkIs3Sets('third', setsRule);
-            const isFinal3Sets = checkIs3Sets('final', setsRule);
-
-            const semi1Res = getTournMatchResult('m1', isSemi3Sets, t1, t4);
-            const semi2Res = getTournMatchResult('m2', isSemi3Sets, t2, t3);
-
-            document.getElementById('disp-semi1-score').innerText = semi1Res.dispText;
-            document.getElementById('disp-semi2-score').innerText = semi2Res.dispText;
-
-            const finA = semi1Res.winner !== '-' ? semi1Res.winner : '準決勝1勝者';
-            const finB = semi2Res.winner !== '-' ? semi2Res.winner : '準決勝2勝者';
-
-            const mfA = document.getElementById('t_mf_ta'); if (mfA) mfA.innerText = finA;
-            const mfB = document.getElementById('t_mf_tb'); if (mfB) mfB.innerText = finB;
-
-            document.getElementById('t-final-teamA').innerText = finA;
-            document.getElementById('t-final-teamB').innerText = finB;
-
-            const thdA = semi1Res.loser !== '-' ? semi1Res.loser : '準決勝1敗者';
-            const thdB = semi2Res.loser !== '-' ? semi2Res.loser : '準決勝2敗者';
-
-            const m3A = document.getElementById('t_m3_ta'); if (m3A) m3A.innerText = thdA;
-            const m3B = document.getElementById('t_m3_tb'); if (m3B) m3B.innerText = thdB;
-
-            document.getElementById('t-third-teamA').innerText = thdA;
-            document.getElementById('t-third-teamB').innerText = thdB;
-
-            const thirdRes = getTournMatchResult('m3', isThird3Sets, thdA, thdB);
-            document.getElementById('disp-third-score').innerText = thirdRes.dispText;
-
-            const finalRes = getTournMatchResult('mf', isFinal3Sets, finA, finB);
-            document.getElementById('disp-final-score').innerText = finalRes.dispText;
+            // 3位決定戦
+            document.getElementById('t-third-teamA').innerText = third.teamA || '-';
+            document.getElementById('t-third-teamB').innerText = third.teamB || '-';
+            document.getElementById('disp-third-score').innerText = (third.scoreA !== '' && third.scoreB !== '') ? `${third.scoreA} - ${third.scoreB}` : '- vs -';
         }
 
-        // ==========================================
-        // 💾 PDF / JSON / CSV データ入出力
-        // ==========================================
-
-        function exportPDF() {
-            window.print();
-        }
-
-        function downloadFile(content, fileName, contentType) {
-            const a = document.createElement('a');
-            const file = new Blob([content], { type: contentType });
-            a.href = URL.createObjectURL(file);
-            a.download = fileName;
-            a.click();
-            URL.revokeObjectURL(a.href);
-        }
+        // --- データ入出力機能 (PDF, JSON, CSV) ---
+        function exportPDF() { window.print(); }
 
         function exportJSON() {
-            let data = {
-                config: {
-                    eventName: document.getElementById('cfg-event-name').value,
-                    eventDate: document.getElementById('cfg-event-date').value,
-                    teamsCount: document.getElementById('cfg-teams').value,
-                    schedMode: document.getElementById('cfg-sched-mode').value,
-                    courtsCount: document.getElementById('cfg-courts').value,
-                    roundsCount: document.getElementById('cfg-rounds').value,
-                    targetRound: document.getElementById('cfg-target-round').value,
-                    setsRule: document.getElementById('cfg-sets-rule').value,
-                    teamNames: state.teams
-                },
-                matches: state.matches,
-                preliminaryScores: {},
-                tournamentScores: {}
-            };
-
-            state.matches.forEach(m => {
-                const sa = document.getElementById(`s_${m.id}_a`)?.value || document.getElementById(`cs_${m.id}_a`)?.value || '';
-                const sb = document.getElementById(`s_${m.id}_b`)?.value || document.getElementById(`cs_${m.id}_b`)?.value || '';
-                data.preliminaryScores[m.id] = { sa, sb };
-            });
-
-            ['m1', 'm2', 'm3', 'mf'].forEach(mKey => {
-                data.tournamentScores[mKey] = {};
-                for (let s = 1; s <= 3; s++) {
-                    const sa = document.getElementById(`ts_${mKey}_s${s}_a`)?.value || '';
-                    const sb = document.getElementById(`ts_${mKey}_s${s}_b`)?.value || '';
-                    const vWin = document.getElementById(`v_${mKey}_s${s}_win`)?.value || '';
-                    data.tournamentScores[mKey][`s${s}`] = { sa, sb, vWin };
-                }
-            });
-
-            const jsonStr = JSON.stringify(data, null, 2);
-            const eventName = data.config.eventName || 'club_schedule';
-            downloadFile(jsonStr, `${eventName}.json`, 'application/json');
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(state, null, 2));
+            const dlAnchorElem = document.createElement('a');
+            dlAnchorElem.setAttribute("href", dataStr);
+            dlAnchorElem.setAttribute("download", `schedule_${new Date().toISOString().slice(0,10)}.json`);
+            dlAnchorElem.click();
         }
 
         function importJSON(event) {
             const file = event.target.files[0];
             if (!file) return;
-
             const reader = new FileReader();
             reader.onload = function(e) {
                 try {
-                    const data = JSON.parse(e.target.result);
-
-                    if (data.config) {
-                        if (data.config.eventName !== undefined) {
-                            document.getElementById('cfg-event-name').value = data.config.eventName;
-                        }
-                        if (data.config.eventDate !== undefined) {
-                            document.getElementById('cfg-event-date').value = data.config.eventDate;
-                        }
-                        updateHeaderInfo();
-
-                        document.getElementById('cfg-teams').value = data.config.teamsCount;
-                        renderTeamInputs();
-
-                        if (data.config.teamNames) {
-                            data.config.teamNames.forEach((name, idx) => {
-                                const input = document.getElementById(`team-in-${idx}`);
-                                if (input) input.value = name;
-                            });
-                        }
-
-                        if (data.config.schedMode !== undefined) {
-                            document.getElementById('cfg-sched-mode').value = data.config.schedMode;
-                        }
-                        if (data.config.courtsCount !== undefined) {
-                            document.getElementById('cfg-courts').value = data.config.courtsCount;
-                        }
-                        document.getElementById('cfg-rounds').value = data.config.roundsCount;
-                        document.getElementById('cfg-target-round').value = data.config.targetRound;
-                        document.getElementById('cfg-sets-rule').value = data.config.setsRule;
-
-                        if (data.matches) {
-                            state.matches = data.matches;
-                        }
-
-                        toggleSchedModeUI();
-                    }
-
-                    if (data.preliminaryScores) {
-                        Object.keys(data.preliminaryScores).forEach(id => {
-                            const valA = data.preliminaryScores[id].sa;
-                            const valB = data.preliminaryScores[id].sb;
-                            syncScoreInput(id, 'a', valA);
-                            syncScoreInput(id, 'b', valB);
-                        });
-                    }
-
-                    if (data.tournamentScores) {
-                        Object.keys(data.tournamentScores).forEach(mKey => {
-                            for (let s = 1; s <= 3; s++) {
-                                const setObj = data.tournamentScores[mKey][`s${s}`];
-                                if (setObj) {
-                                    const saEl = document.getElementById(`ts_${mKey}_s${s}_a`);
-                                    const sbEl = document.getElementById(`ts_${mKey}_s${s}_b`);
-                                    const vEl = document.getElementById(`v_${mKey}_s${s}_win`);
-                                    if (saEl) saEl.value = setObj.sa;
-                                    if (sbEl) sbEl.value = setObj.sb;
-                                    if (vEl) vEl.value = setObj.vWin;
-                                }
-                            }
-                        });
-                    }
-
-                    calculateAll();
-                    alert('データの読み込みが完了しました！');
+                    const importedState = JSON.parse(e.target.result);
+                    state = importedState;
+                    document.getElementById('cfg-teams').value = state.teams.length;
+                    renderTeamInputs();
+                    state.teams.forEach((t, i) => {
+                        const el = document.getElementById(`team-in-${i}`);
+                        if (el) el.value = t;
+                    });
+                    buildApp();
                 } catch (err) {
-                    alert('ファイルの読み込みに失敗しました。正しいJSON形式か確認してください。');
+                    alert('JSONファイルの読み込みに失敗しました。');
                 }
             };
             reader.readAsText(file);
-            event.target.value = '';
         }
 
         function exportMatrixCSV() {
-            let csvContent = "\uFEFF";
-            const eventName = document.getElementById('cfg-event-name').value;
-            const eventDate = document.getElementById('cfg-event-date').value;
-
-            csvContent += `大会名,"${eventName}"\n`;
-            csvContent += `開催日,"${eventDate}"\n\n`;
-
-            if (state.schedMode === 'auto') {
-                for (let r = 1; r <= state.roundsCount; r++) {
-                    csvContent += `■ 第 ${r} 巡目 対戦表\n`;
-                    csvContent += getMatrixTableCSVData(`r${r}`);
-                    csvContent += "\n\n";
-                }
-                if (state.roundsCount > 1) {
-                    csvContent += `■ 予選 通算対戦表\n`;
-                    csvContent += getMatrixTableCSVData('total');
-                    csvContent += "\n\n";
-                }
-            } else {
-                csvContent += `■ 予選 星取表\n`;
-                csvContent += getMatrixTableCSVData('total');
-                csvContent += "\n\n";
-            }
-
-            downloadFile(csvContent, `matrix_${eventName}.csv`, 'text/csv;charset=utf-8;');
-        }
-
-        function getMatrixTableCSVData(prefix) {
-            const table = document.getElementById(`matrix_table_${prefix}`);
-            if (!table) return "";
-
-            let rows = [];
-            for (let tr of table.querySelectorAll('tr')) {
-                let row = [];
-                for (let td of tr.querySelectorAll('th, td')) {
-                    let text = td.innerText.replace(/\n/g, ' ');
-                    row.push(`"${text}"`);
-                }
-                rows.push(row.join(','));
-            }
-            return rows.join('\n');
+            let csv = "順位,チーム名,勝ち点,勝,引,負,得点,失点,得失点差\n";
+            state.rankings.forEach(r => {
+                csv += `${r.rank || '-'},${r.name},${r.points},${r.win},${r.draw},${r.loss},${r.scoreFor},${r.scoreAgainst},${r.diff}\n`;
+            });
+            downloadCSV(csv, "matrix_standings.csv");
         }
 
         function exportTournamentCSV() {
-            let csvContent = "\uFEFF";
-            const eventName = document.getElementById('cfg-event-name').value;
-            const eventDate = document.getElementById('cfg-event-date').value;
-
-            csvContent += `大会名,"${eventName}"\n`;
-            csvContent += `開催日,"${eventDate}"\n\n`;
-            csvContent += "試合名,対戦カード,スコア/結果\n";
-
-            const matchesInfo = [
-                { name: "準決勝 第1試合", scoreId: "disp-semi1-score", teamAId: "t-semi1-a", teamBId: "t-semi1-b" },
-                { name: "準決勝 第2試合", scoreId: "disp-semi2-score", teamAId: "t-semi2-a", teamBId: "t-semi2-b" },
-                { name: "3位決定戦", scoreId: "disp-third-score", teamAId: "t-third-teamA", teamBId: "t-third-teamB" },
-                { name: "決勝戦", scoreId: "disp-final-score", teamAId: "t-final-teamA", teamBId: "t-final-teamB" }
-            ];
-
-            matchesInfo.forEach(m => {
-                const teamA = document.getElementById(m.teamAId)?.innerText || '-';
-                const teamB = document.getElementById(m.teamBId)?.innerText || '-';
-                const score = document.getElementById(m.scoreId)?.innerText || '-';
-                csvContent += `"${m.name}","${teamA} vs ${teamB}","${score}"\n`;
+            let csv = "試合名,チームA,スコアA,スコアB,チームB,勝者\n";
+            state.tournMatches.forEach(m => {
+                csv += `${m.name},${m.teamA || '-'},${m.scoreA ?? ''},${m.scoreB ?? ''},${m.teamB || '-'},${m.winner || '-'}\n`;
             });
+            downloadCSV(csv, "tournament_results.csv");
+        }
 
-            downloadFile(csvContent, `tournament_${eventName}.csv`, 'text/csv;charset=utf-8;');
+        function downloadCSV(csvContent, fileName) {
+            const bom = new Uint8Array([0xEF, 0xBB, 0xBF]); // UTF-8 BOM追加
+            const blob = new Blob([bom, csvContent], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = fileName;
+            a.click();
+            URL.revokeObjectURL(url);
         }
     </script>
 </body>
