@@ -14,6 +14,10 @@
             --sub-text: #94a3b8;
             --border: #334155;
             --gold: #fbd38d;
+            --bronze: #cd7f32;
+            --green: #38a169;
+            --purple: #805ad5;
+            --red: #e53e3e;
             --line-color: #64748b;
         }
         * { box-sizing: border-box; }
@@ -72,6 +76,40 @@
             color: white;
             font-weight: bold;
         }
+
+        /* データ操作ボタンエリア */
+        .io-btn-group {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 15px;
+            padding: 10px;
+            background: rgba(15, 23, 42, 0.6);
+            border-radius: 8px;
+            border: 1px solid var(--border);
+        }
+        .btn-io {
+            flex: 1;
+            min-width: 120px;
+            padding: 8px 12px;
+            border: none;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: bold;
+            color: white;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            transition: opacity 0.2s;
+        }
+        .btn-io:hover { opacity: 0.85; }
+        .btn-json-export { background: var(--purple); }
+        .btn-json-import { background: #4a5568; }
+        .btn-csv-matrix { background: var(--green); }
+        .btn-csv-tourn { background: #dd6b20; }
+        .btn-pdf-export { background: var(--red); }
 
         /* チーム名入力エリア */
         .team-inputs-grid {
@@ -291,6 +329,10 @@
             width: 110px;
             border-color: var(--gold);
         }
+        .t-team-node.third-node {
+            width: 110px;
+            border-color: var(--bronze);
+        }
         .t-team-label {
             font-size: 10px;
             color: var(--sub-text);
@@ -342,11 +384,22 @@
         .match-score-disp.final {
             border-color: var(--gold);
         }
+        .match-score-disp.third {
+            border-color: var(--bronze);
+        }
         .final-center {
             display: flex;
             flex-direction: column;
             align-items: center;
-            margin-bottom: 15px;
+            margin-bottom: 25px;
+        }
+        .third-center {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 25px;
+            padding-top: 15px;
+            border-top: 1px dashed var(--border);
         }
         .final-teams-flex {
             display: flex;
@@ -359,6 +412,61 @@
             font-weight: bold;
             color: var(--gold);
             margin-bottom: 4px;
+        }
+        .bronze-title {
+            font-size: 13px;
+            font-weight: bold;
+            color: var(--bronze);
+            margin-bottom: 4px;
+        }
+
+        /* 🖨️ 印刷 (PDF出力) 用スタイル設定 */
+        @media print {
+            body {
+                background-color: #fff !important;
+                color: #000 !important;
+                padding: 0;
+            }
+            h1 {
+                color: #000 !important;
+                font-size: 18px;
+                margin-bottom: 10px;
+            }
+            .config-card, .btn-primary, .io-btn-group, .section-title:nth-of-type(1), #schedule-table, .section-title:nth-of-type(3), #tournament-container {
+                display: none !important; /* 不要エリアの非表示 */
+            }
+            .section-title {
+                color: #000 !important;
+                border-left-color: #000 !important;
+                margin-top: 10px;
+            }
+            table, .tournament-wrapper, .tourn-match-card {
+                background: #fff !important;
+                color: #000 !important;
+                border: 1px solid #666 !important;
+                box-shadow: none !important;
+            }
+            th, td {
+                border: 1px solid #666 !important;
+                color: #000 !important;
+                background: #fff !important;
+            }
+            .matrix-title { color: #000 !important; }
+            .t-team-node, .match-score-disp {
+                background: #fff !important;
+                color: #000 !important;
+                border-color: #333 !important;
+            }
+            .t-team-name { color: #000 !important; }
+            .bracket-line, .bracket-line::after {
+                border-color: #333 !important;
+                background-color: #333 !important;
+            }
+            .score-input {
+                border: none !important;
+                background: transparent !important;
+                color: #000 !important;
+            }
         }
     </style>
 </head>
@@ -409,6 +517,16 @@
                     <option value="none">全試合 1セットマッチ</option>
                 </select>
             </div>
+        </div>
+
+        <div class="config-title" style="margin-top: 15px;">💾 データ保存・入出力 (JSON / CSV / PDF)</div>
+        <div class="io-btn-group">
+            <button class="btn-io btn-pdf-export" onclick="exportPDF()">🖨️ PDF出力 / 印刷</button>
+            <button class="btn-io btn-json-export" onclick="exportJSON()">💾 JSON保存</button>
+            <button class="btn-io btn-json-import" onclick="document.getElementById('file-json-input').click()">📂 JSON読込</button>
+            <button class="btn-io btn-csv-matrix" onclick="exportMatrixCSV()">📊 星取表 CSV</button>
+            <button class="btn-io btn-csv-tourn" onclick="exportTournamentCSV()">🏆 トーナメント CSV</button>
+            <input type="file" id="file-json-input" accept=".json" style="display:none;" onchange="importJSON(event)">
         </div>
 
         <div class="config-title" style="margin-top: 15px;">チーム名設定</div>
@@ -498,6 +616,22 @@
                         <span class="t-team-label" id="t-semi2-lblB">予選3位</span>
                         <span class="t-team-name" id="t-semi2-b">-</span>
                     </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 3位決定戦 -->
+        <div class="third-center">
+            <div class="bronze-title">🥉 3位決定戦</div>
+            <div class="final-teams-flex">
+                <div class="t-team-node third-node">
+                    <span class="t-team-label" id="t-third-lblA">準決勝1敗者</span>
+                    <span class="t-team-name" id="t-third-teamA">-</span>
+                </div>
+                <div class="match-score-disp third" id="disp-third-score">- vs -</div>
+                <div class="t-team-node third-node">
+                    <span class="t-team-label" id="t-third-lblB">準決勝2敗者</span>
+                    <span class="t-team-name" id="t-third-teamB">-</span>
                 </div>
             </div>
         </div>
@@ -610,7 +744,7 @@
 
         // 1回分（1テーブル）の星取表HTML作成用ヘルパー
         function renderSingleMatrixTable(prefix) {
-            let html = `<table class="matrix-table"><thead><tr><th>チーム</th>`;
+            let html = `<table class="matrix-table" id="matrix_table_${prefix}"><thead><tr><th>チーム</th>`;
             state.teams.forEach((_, tIdx) => {
                 html += `<th>${state.teams[tIdx]}</th>`;
             });
@@ -640,8 +774,8 @@
         function checkIs3Sets(roundLevel, setsRule) {
             if (setsRule === 'none') return false;
             if (setsRule === 'all') return true;
-            if (setsRule === 'qf') return ['qf', 'semi', 'final'].includes(roundLevel);
-            if (setsRule === 'semi') return ['semi', 'final'].includes(roundLevel);
+            if (setsRule === 'qf') return ['qf', 'semi', 'final', 'third'].includes(roundLevel);
+            if (setsRule === 'semi') return ['semi', 'final', 'third'].includes(roundLevel);
             if (setsRule === 'final') return roundLevel === 'final';
             return false;
         }
@@ -653,6 +787,7 @@
             
             const setsRule = document.getElementById('cfg-sets-rule').value;
             const isSemi3Sets = checkIs3Sets('semi', setsRule);
+            const isThird3Sets = checkIs3Sets('third', setsRule);
             const isFinal3Sets = checkIs3Sets('final', setsRule);
 
             let html = `
@@ -680,6 +815,19 @@
                         <span id="t_m2_tb">準決2(右)</span>
                     </div>
                     ${renderSetInputs('m2', isSemi3Sets)}
+                </div>
+
+                <div class="tourn-match-card" style="border-color: var(--bronze);">
+                    <div class="tourn-match-header">
+                        <span style="color:var(--bronze); font-weight:bold;">🥉 3位決定戦</span>
+                        <span>${isThird3Sets ? '3セットマッチ' : '1セットマッチ'}</span>
+                    </div>
+                    <div class="tourn-match-body">
+                        <span id="t_m3_ta">3位枠(左)</span>
+                        <span style="color:var(--sub-text); font-size:12px;"> vs </span>
+                        <span id="t_m3_tb">3位枠(右)</span>
+                    </div>
+                    ${renderSetInputs('m3', isThird3Sets)}
                 </div>
 
                 <div class="tourn-match-card" style="border-color: var(--gold);">
@@ -742,7 +890,6 @@
 
         // 星取表表示のアップデート
         function updateMatrixUI(prefix, statsArray, cellsObj, isTotal) {
-            // 勝点 > 内野人数差（自内野）の優先度でソートして順位を判定
             let ranked = [...statsArray].sort((a, b) => b.pts - a.pts || b.myIn - a.myIn);
             let rankMap = {};
             ranked.forEach((item, idx) => {
@@ -750,7 +897,6 @@
             });
 
             statsArray.forEach((st, i) => {
-                // セル内データ描画
                 statsArray.forEach((_, j) => {
                     if (i !== j) {
                         const cell = document.getElementById(`m_${prefix}_cell_${i}_${j}`);
@@ -765,7 +911,6 @@
                     }
                 });
 
-                // スタッツ表示
                 document.getElementById(`st_${prefix}_w_${i}`).innerText = st.win;
                 document.getElementById(`st_${prefix}_d_${i}`).innerText = st.draw;
                 document.getElementById(`st_${prefix}_l_${i}`).innerText = st.lose;
@@ -839,7 +984,6 @@
         function calculateAll() {
             const targetMode = document.getElementById('cfg-target-round').value;
 
-            // 巡ごとのデータ初期化
             let statsRounds = {};
             let cellsRounds = {};
             for (let r = 1; r <= state.roundsCount; r++) {
@@ -847,11 +991,9 @@
                 cellsRounds[r] = {};
             }
 
-            // 通算用データ
             let statsTotal = state.teams.map((name, i) => ({ id: i, name, pts: 0, win: 0, draw: 0, lose: 0, myIn: 0, oppIn: 0 }));
             let cellsTotal = {};
 
-            // スコア集計・計算
             state.matches.forEach(m => {
                 const saEl = document.getElementById(`s_${m.id}_a`);
                 const sbEl = document.getElementById(`s_${m.id}_b`);
@@ -862,7 +1004,6 @@
                     const sb = parseInt(sbEl.value, 10);
                     const r = m.roundNum;
 
-                    // 予選スケジュール表の「結果（勝ち/引き分け/負け）」表示更新
                     if (resDispEl) {
                         const teamAName = state.teams[m.teamA];
                         const teamBName = state.teams[m.teamB];
@@ -875,16 +1016,13 @@
                         }
                     }
 
-                    // 該当巡に加算
                     addStats(statsRounds[r][m.teamA], statsRounds[r][m.teamB], sa, sb);
 
-                    // 該当巡の文字記録
                     let symA = sa > sb ? '◯' : (sa < sb ? '●' : '△');
                     let symB = sb > sa ? '◯' : (sb < sa ? '●' : '△');
                     cellsRounds[r][`${m.teamA}_${m.teamB}`] = `${symA}${sa}-${sb}`;
                     cellsRounds[r][`${m.teamB}_${m.teamA}`] = `${symB}${sb}-${sa}`;
 
-                    // 通算にも加算
                     addStats(statsTotal[m.teamA], statsTotal[m.teamB], sa, sb);
 
                     if (!cellsTotal[`${m.teamA}_${m.teamB}`]) cellsTotal[`${m.teamA}_${m.teamB}`] = [];
@@ -896,17 +1034,14 @@
                 }
             });
 
-            // 各巡の星取表を表示更新
             for (let r = 1; r <= state.roundsCount; r++) {
                 updateMatrixUI(`r${r}`, statsRounds[r], cellsRounds[r], false);
             }
 
-            // 通算星取表の表示更新
             if (state.roundsCount > 1) {
                 updateMatrixUI('total', statsTotal, cellsTotal, true);
             }
 
-            // 決勝トーナメント進出判定用のソートデータ選定
             let sortedTarget = [];
             if (targetMode === 'last') {
                 sortedTarget = [...statsRounds[state.roundsCount]].sort((a,b) => b.pts - a.pts || b.myIn - a.myIn);
@@ -914,30 +1049,26 @@
                 sortedTarget = [...statsTotal].sort((a,b) => b.pts - a.pts || b.myIn - a.myIn);
             }
 
-            // 順位付けされたチーム取得（上位4チーム）
             const t1 = sortedTarget[0]?.name || '予選1位';
             const t2 = sortedTarget[1]?.name || '予選2位';
             const t3 = sortedTarget[2]?.name || '予選3位';
             const t4 = sortedTarget[3]?.name || '予選4位';
 
-            // 入力欄のラベル更新
             const m1A = document.getElementById('t_m1_ta'); if (m1A) m1A.innerText = t1;
             const m1B = document.getElementById('t_m1_tb'); if (m1B) m1B.innerText = t4;
             const m2A = document.getElementById('t_m2_ta'); if (m2A) m2A.innerText = t2;
             const m2B = document.getElementById('t_m2_tb'); if (m2B) m2B.innerText = t3;
 
-            // 図（トーナメントツリー）のチーム名反映
             document.getElementById('t-semi1-a').innerText = t1;
             document.getElementById('t-semi1-b').innerText = t4;
             document.getElementById('t-semi2-a').innerText = t2;
             document.getElementById('t-semi2-b').innerText = t3;
 
-            // 3セットルール適用状態の取得
             const setsRule = document.getElementById('cfg-sets-rule').value;
             const isSemi3Sets = checkIs3Sets('semi', setsRule);
+            const isThird3Sets = checkIs3Sets('third', setsRule);
             const isFinal3Sets = checkIs3Sets('final', setsRule);
 
-            // 準決勝の計算結果取得
             const semi1Res = getTournMatchResult('m1', isSemi3Sets, t1, t4);
             const semi2Res = getTournMatchResult('m2', isSemi3Sets, t2, t3);
 
@@ -954,9 +1085,202 @@
             document.getElementById('t-final-teamA').innerText = finA;
             document.getElementById('t-final-teamB').innerText = finB;
 
-            // 決勝戦の計算結果取得
+            // 3位決定戦進出チームの反映
+            const thdA = semi1Res.loser !== '-' ? semi1Res.loser : '準決勝1敗者';
+            const thdB = semi2Res.loser !== '-' ? semi2Res.loser : '準決勝2敗者';
+
+            const m3A = document.getElementById('t_m3_ta'); if (m3A) m3A.innerText = thdA;
+            const m3B = document.getElementById('t_m3_tb'); if (m3B) m3B.innerText = thdB;
+
+            document.getElementById('t-third-teamA').innerText = thdA;
+            document.getElementById('t-third-teamB').innerText = thdB;
+
+            // 3位決定戦＆決勝戦の計算結果取得
+            const thirdRes = getTournMatchResult('m3', isThird3Sets, thdA, thdB);
+            document.getElementById('disp-third-score').innerText = thirdRes.dispText;
+
             const finalRes = getTournMatchResult('mf', isFinal3Sets, finA, finB);
             document.getElementById('disp-final-score').innerText = finalRes.dispText;
+        }
+
+        // ==========================================
+        // 💾 PDF / JSON / CSV データ入出力（データ保存・復元）
+        // ==========================================
+
+        // PDF / 印刷出力
+        function exportPDF() {
+            window.print();
+        }
+
+        // ファイルダウンロード用共通関数
+        function downloadFile(content, fileName, contentType) {
+            const a = document.createElement('a');
+            const file = new Blob([content], { type: contentType });
+            a.href = URL.createObjectURL(file);
+            a.download = fileName;
+            a.click();
+            URL.revokeObjectURL(a.href);
+        }
+
+        // 1. 全状態のJSONエクスポート
+        function exportJSON() {
+            let data = {
+                config: {
+                    teamsCount: document.getElementById('cfg-teams').value,
+                    roundsCount: document.getElementById('cfg-rounds').value,
+                    targetRound: document.getElementById('cfg-target-round').value,
+                    setsRule: document.getElementById('cfg-sets-rule').value,
+                    teamNames: state.teams
+                },
+                preliminaryScores: {},
+                tournamentScores: {}
+            };
+
+            // 予選スコア取得
+            state.matches.forEach(m => {
+                const sa = document.getElementById(`s_${m.id}_a`)?.value || '';
+                const sb = document.getElementById(`s_${m.id}_b`)?.value || '';
+                data.preliminaryScores[m.id] = { sa, sb };
+            });
+
+            // トーナメントスコア取得
+            ['m1', 'm2', 'm3', 'mf'].forEach(mKey => {
+                data.tournamentScores[mKey] = {};
+                for (let s = 1; s <= 3; s++) {
+                    const sa = document.getElementById(`ts_${mKey}_s${s}_a`)?.value || '';
+                    const sb = document.getElementById(`ts_${mKey}_s${s}_b`)?.value || '';
+                    const vWin = document.getElementById(`v_${mKey}_s${s}_win`)?.value || '';
+                    data.tournamentScores[mKey][`s${s}`] = { sa, sb, vWin };
+                }
+            });
+
+            const jsonStr = JSON.stringify(data, null, 2);
+            const timeStamp = new Date().toISOString().slice(0, 10);
+            downloadFile(jsonStr, `club_schedule_${timeStamp}.json`, 'application/json');
+        }
+
+        // 2. JSONデータのインポート復元
+        function importJSON(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = JSON.parse(e.target.result);
+
+                    // 設定反映
+                    if (data.config) {
+                        document.getElementById('cfg-teams').value = data.config.teamsCount;
+                        renderTeamInputs();
+
+                        if (data.config.teamNames) {
+                            data.config.teamNames.forEach((name, idx) => {
+                                const input = document.getElementById(`team-in-${idx}`);
+                                if (input) input.value = name;
+                            });
+                        }
+
+                        document.getElementById('cfg-rounds').value = data.config.roundsCount;
+                        document.getElementById('cfg-target-round').value = data.config.targetRound;
+                        document.getElementById('cfg-sets-rule').value = data.config.setsRule;
+
+                        buildApp();
+                    }
+
+                    // 予選スコア復元
+                    if (data.preliminaryScores) {
+                        Object.keys(data.preliminaryScores).forEach(id => {
+                            const saEl = document.getElementById(`s_${id}_a`);
+                            const sbEl = document.getElementById(`s_${id}_b`);
+                            if (saEl) saEl.value = data.preliminaryScores[id].sa;
+                            if (sbEl) sbEl.value = data.preliminaryScores[id].sb;
+                        });
+                    }
+
+                    // トーナメントスコア復元
+                    if (data.tournamentScores) {
+                        Object.keys(data.tournamentScores).forEach(mKey => {
+                            for (let s = 1; s <= 3; s++) {
+                                const setObj = data.tournamentScores[mKey][`s${s}`];
+                                if (setObj) {
+                                    const saEl = document.getElementById(`ts_${mKey}_s${s}_a`);
+                                    const sbEl = document.getElementById(`ts_${mKey}_s${s}_b`);
+                                    const vEl = document.getElementById(`v_${mKey}_s${s}_win`);
+                                    if (saEl) saEl.value = setObj.sa;
+                                    if (sbEl) sbEl.value = setObj.sb;
+                                    if (vEl) vEl.value = setObj.vWin;
+                                }
+                            }
+                        });
+                    }
+
+                    calculateAll();
+                    alert('データの読み込みが完了しました！');
+                } catch (err) {
+                    alert('ファイルの読み込みに失敗しました。正しいJSON形式か確認してください。');
+                }
+            };
+            reader.readAsText(file);
+            event.target.value = ''; // ファイルリセット
+        }
+
+        // 3. 星取表のCSV出力
+        function exportMatrixCSV() {
+            let csvContent = "\uFEFF"; // UTF-8 BOM
+
+            for (let r = 1; r <= state.roundsCount; r++) {
+                csvContent += `■ 第 ${r} 巡目 対戦表\n`;
+                csvContent += getMatrixTableCSVData(`r${r}`);
+                csvContent += "\n\n";
+            }
+
+            if (state.roundsCount > 1) {
+                csvContent += `■ 予選 通算対戦表\n`;
+                csvContent += getMatrixTableCSVData('total');
+                csvContent += "\n\n";
+            }
+
+            downloadFile(csvContent, `preliminary_matrix.csv`, 'text/csv;charset=utf-8;');
+        }
+
+        // 星取表テーブルのテキスト抽出
+        function getMatrixTableCSVData(prefix) {
+            const table = document.getElementById(`matrix_table_${prefix}`);
+            if (!table) return "";
+
+            let rows = [];
+            for (let tr of table.querySelectorAll('tr')) {
+                let row = [];
+                for (let td of tr.querySelectorAll('th, td')) {
+                    let text = td.innerText.replace(/\n/g, ' ');
+                    row.push(`"${text}"`);
+                }
+                rows.push(row.join(','));
+            }
+            return rows.join('\n');
+        }
+
+        // 4. 決勝トーナメント結果のCSV出力
+        function exportTournamentCSV() {
+            let csvContent = "\uFEFF"; // UTF-8 BOM
+            csvContent += "試合名,対戦カード,スコア/結果\n";
+
+            const matchesInfo = [
+                { name: "準決勝 第1試合", scoreId: "disp-semi1-score", teamAId: "t-semi1-a", teamBId: "t-semi1-b" },
+                { name: "準決勝 第2試合", scoreId: "disp-semi2-score", teamAId: "t-semi2-a", teamBId: "t-semi2-b" },
+                { name: "3位決定戦", scoreId: "disp-third-score", teamAId: "t-third-teamA", teamBId: "t-third-teamB" },
+                { name: "決勝戦", scoreId: "disp-final-score", teamAId: "t-final-teamA", teamBId: "t-final-teamB" }
+            ];
+
+            matchesInfo.forEach(m => {
+                const teamA = document.getElementById(m.teamAId)?.innerText || '-';
+                const teamB = document.getElementById(m.teamBId)?.innerText || '-';
+                const score = document.getElementById(m.scoreId)?.innerText || '-';
+                csvContent += `"${m.name}","${teamA} vs ${teamB}","${score}"\n`;
+            });
+
+            downloadFile(csvContent, `tournament_results.csv`, 'text/csv;charset=utf-8;');
         }
     </script>
 </body>
