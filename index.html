@@ -53,7 +53,7 @@
             padding: 15px;
             border-radius: 12px;
             border: 1px solid var(--border);
-            max-width: 850px;
+            max-width: 950px;
             margin: 0 auto 20px auto;
             text-align: left;
         }
@@ -121,12 +121,19 @@
         .btn-csv-tourn { background: #dd6b20; }
         .btn-pdf-export { background: var(--red); }
 
-        /* チーム名入力エリア */
+        /* チーム名入力エリア（スクロール可能に） */
+        .team-inputs-wrapper {
+            max-height: 250px;
+            overflow-y: auto;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 10px;
+            background: rgba(15, 23, 42, 0.4);
+        }
         .team-inputs-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
             gap: 8px;
-            margin-top: 10px;
         }
         .team-input-group {
             display: flex;
@@ -134,9 +141,11 @@
             gap: 4px;
         }
         .team-input-group span {
-            font-size: 12px;
+            font-size: 11px;
             color: var(--sub-text);
-            width: 24px;
+            width: 30px;
+            text-align: right;
+            margin-right: 2px;
         }
 
         .btn-primary {
@@ -151,30 +160,55 @@
             margin-top: 10px;
         }
 
+        .btn-secondary {
+            padding: 6px 12px;
+            background: #4a5568;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 12px;
+            cursor: pointer;
+            margin-top: 8px;
+        }
+
+        .btn-danger {
+            padding: 4px 8px;
+            background: var(--red);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 11px;
+            cursor: pointer;
+        }
+
         /* セクションタイトル */
         .section-title {
             font-size: 16px;
             color: var(--accent2);
             margin: 25px auto 10px auto;
             text-align: left;
-            max-width: 850px;
+            max-width: 950px;
             border-left: 4px solid var(--accent2);
             padding-left: 8px;
         }
 
-        /* テーブル共通 */
+        /* テーブル共通 (横スクロール対応) */
+        .table-responsive {
+            max-width: 950px;
+            margin: 0 auto 20px auto;
+            overflow-x: auto;
+        }
         table {
             width: 100%;
-            max-width: 850px;
-            margin: 0 auto 20px auto;
             border-collapse: collapse;
             background: var(--card-bg);
             border-radius: 8px;
             overflow: hidden;
             font-size: 12px;
+            white-space: nowrap;
         }
         th, td {
-            padding: 6px 4px;
+            padding: 6px 8px;
             border: 1px solid var(--border);
             text-align: center;
             vertical-align: middle;
@@ -204,6 +238,16 @@
             color: white;
             font-weight: bold;
             border-radius: 4px;
+        }
+
+        .match-select {
+            background: #0f172a;
+            color: white;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            padding: 4px;
+            font-size: 12px;
+            max-width: 140px;
         }
 
         /* 勝敗バッジ */
@@ -238,7 +282,7 @@
 
         /* 星取表 */
         .matrix-table td.self-cell { background-color: #334155; }
-        .cell-res { font-size: 11px; line-height: 1.3; font-weight: bold; }
+        .cell-res { font-size: 11px; line-height: 1.3; font-weight: bold; min-width: 45px; }
         .stats-hdr { background-color: #0f172a; color: var(--accent2); width: 34px; }
         .rank-hdr { background-color: #0f172a; color: var(--gold); width: 44px; }
         .matrix-title {
@@ -247,7 +291,7 @@
             font-size: 13px;
             font-weight: bold;
             margin: 15px auto 5px auto;
-            max-width: 850px;
+            max-width: 950px;
         }
         .matrix-title.total {
             color: var(--gold);
@@ -258,7 +302,7 @@
 
         /* トーナメント進行カードリスト */
         .tourn-card-list {
-            max-width: 850px;
+            max-width: 950px;
             margin: 0 auto 20px auto;
             display: flex;
             flex-direction: column;
@@ -297,9 +341,9 @@
             border-radius: 6px;
         }
 
-        /* 🏆 甲子園風トーナメント表 */
+        /* 🏆 トーナメント表 */
         .tournament-wrapper {
-            max-width: 850px;
+            max-width: 950px;
             margin: 0 auto;
             background: var(--card-bg);
             border: 1px solid var(--border);
@@ -425,7 +469,7 @@
             .header-container { margin-bottom: 10px; }
             .event-date-disp { color: #333 !important; font-size: 12px; }
             h1 { color: #000 !important; font-size: 20px; margin-bottom: 10px; }
-            .config-card, .btn-primary, .io-btn-group, .section-title:nth-of-type(1), #schedule-table, .section-title:nth-of-type(3), #tournament-container {
+            .config-card, .btn-primary, .io-btn-group, .section-title:nth-of-type(1), .table-responsive, .section-title:nth-of-type(3), #tournament-container, .btn-secondary, .btn-danger {
                 display: none !important;
             }
             .section-title { color: #000 !important; border-left-color: #000 !important; margin-top: 10px; }
@@ -437,7 +481,7 @@
             .t-team-node, .match-score-disp { background: #fff !important; color: #000 !important; border-color: #333 !important; }
             .t-team-name { color: #000 !important; }
             .bracket-line, .bracket-line::after { border-color: #333 !important; background-color: #333 !important; }
-            .score-input { border: none !important; background: transparent !important; color: #000 !important; }
+            .score-input, .match-select { border: none !important; background: transparent !important; color: #000 !important; }
             .court-badge { border: 1px solid #333; color: #000 !important; background: transparent !important; }
         }
     </style>
@@ -467,15 +511,14 @@
         <div class="config-title" style="margin-top: 15px;">⚙️ 大会ルール・会場設定</div>
         <div class="config-grid">
             <div class="config-item">
-                <label>参加チーム数</label>
-                <select id="cfg-teams" onchange="renderTeamInputs()">
-                    <option value="2">2チーム</option>
-                    <option value="3" selected>3チーム</option>
-                    <option value="4">4チーム</option>
-                    <option value="5">5チーム</option>
-                    <option value="6">6チーム</option>
-                    <option value="7">7チーム</option>
-                    <option value="8">8チーム</option>
+                <label>参加チーム数（最大50）</label>
+                <select id="cfg-teams" onchange="renderTeamInputs()"></select>
+            </div>
+            <div class="config-item">
+                <label>スケジュール作成</label>
+                <select id="cfg-sched-mode" onchange="toggleSchedModeUI()">
+                    <option value="auto" selected>自動作成（均等割り振り）</option>
+                    <option value="manual">手動作成（カスタム設定）</option>
                 </select>
             </div>
             <div class="config-item">
@@ -487,11 +530,11 @@
                     <option value="4">4コート (A, B, C, D)</option>
                 </select>
             </div>
-            <div class="config-item">
+            <div class="config-item" id="cfg-rounds-group">
                 <label>予選リーグ 周回（巡）数</label>
                 <select id="cfg-rounds" onchange="buildApp()">
-                    <option value="1">1巡（各1試合）</option>
-                    <option value="2" selected>2巡（各2試合）</option>
+                    <option value="1" selected>1巡（各1試合）</option>
+                    <option value="2">2巡（各2試合）</option>
                     <option value="3">3巡（各3試合）</option>
                     <option value="4">4巡（各4試合）</option>
                     <option value="5">5巡（各5試合）</option>
@@ -527,8 +570,10 @@
         </div>
 
         <div class="config-title" style="margin-top: 15px;">チーム名設定</div>
-        <div id="team-inputs-container" class="team-inputs-grid">
-            <!-- JSで動的生成 -->
+        <div class="team-inputs-wrapper">
+            <div id="team-inputs-container" class="team-inputs-grid">
+                <!-- JSで動的生成 -->
+            </div>
         </div>
 
         <button class="btn-primary" onclick="buildApp()">大会構成を適用して再構築</button>
@@ -536,24 +581,30 @@
 
     <!-- 予選タイムスケジュール -->
     <div class="section-title">📅 予選リーグ スケジュール & スコア入力</div>
-    <table id="schedule-table">
-        <thead>
-            <tr>
-                <th style="width: 75px;">コート</th>
-                <th style="width: 65px;">試合</th>
-                <th>対戦カード</th>
-                <th style="width: 130px;">スコア (内野人数)</th>
-                <th style="width: 120px;">結果 (勝/引分/負)</th>
-            </tr>
-        </thead>
-        <tbody id="schedule-tbody">
-            <!-- JSで動的生成 -->
-        </tbody>
-    </table>
+    <div class="table-responsive">
+        <table id="schedule-table">
+            <thead>
+                <tr>
+                    <th style="width: 85px;">コート</th>
+                    <th style="width: 65px;">試合</th>
+                    <th>対戦カード</th>
+                    <th style="width: 130px;">スコア (内野人数)</th>
+                    <th style="width: 120px;">結果 (勝/引分/負)</th>
+                    <th id="th-action" style="width: 50px; display:none;">操作</th>
+                </tr>
+            </thead>
+            <tbody id="schedule-tbody">
+                <!-- JSで動的生成 -->
+            </tbody>
+        </table>
+    </div>
+    <div id="manual-add-btn-container" style="display:none; text-align: left; max-width: 950px; margin: -10px auto 15px auto;">
+        <button class="btn-secondary" onclick="addManualMatchRow()">＋ 試合を追加</button>
+    </div>
 
     <!-- 予選星取表エリア -->
     <div class="section-title">⚔️ 予選対戦表（巡別・通算星取表）</div>
-    <div id="matrix-container" style="overflow-x: auto;">
+    <div id="matrix-container">
         <!-- JSで動的生成 -->
     </div>
 
@@ -603,7 +654,7 @@
                 <div class="tree-teams">
                     <div class="t-team-node">
                         <span class="t-team-label" id="t-semi2-lblA">予選2位</span>
-                        <span class="t-team-name" id="t-semi2-a">-</span>
+                        <span class="t-team-name" id="t-semi2-b">-</span>
                     </div>
                     <div class="t-team-node">
                         <span class="t-team-label" id="t-semi2-lblB">予選3位</span>
@@ -636,10 +687,12 @@
             teams: [],
             roundsCount: 1,
             courtsCount: 1,
+            schedMode: 'auto', // 'auto' | 'manual'
             matches: []
         };
 
         window.addEventListener('DOMContentLoaded', () => {
+            initTeamSelectOptions();
             const today = new Date().toISOString().slice(0, 10);
             document.getElementById('cfg-event-date').value = today;
             updateHeaderInfo();
@@ -647,6 +700,19 @@
             renderTeamInputs();
             buildApp();
         });
+
+        // 2〜50チームまでのドロップダウン動的生成
+        function initTeamSelectOptions() {
+            const select = document.getElementById('cfg-teams');
+            select.innerHTML = '';
+            for (let i = 2; i <= 50; i++) {
+                const opt = document.createElement('option');
+                opt.value = i;
+                opt.textContent = `${i}チーム`;
+                if (i === 4) opt.selected = true; // デフォルト4チーム
+                select.appendChild(opt);
+            }
+        }
 
         function updateHeaderInfo() {
             const nameVal = document.getElementById('cfg-event-name').value || 'CLUB TIME SCHEDULE';
@@ -657,21 +723,53 @@
             document.title = nameVal;
         }
 
+        function toggleSchedModeUI() {
+            const mode = document.getElementById('cfg-sched-mode').value;
+            const roundsGroup = document.getElementById('cfg-rounds-group');
+            if (mode === 'manual') {
+                roundsGroup.style.opacity = '0.5';
+            } else {
+                roundsGroup.style.opacity = '1';
+            }
+            buildApp();
+        }
+
+        function getTeamDefaultName(idx) {
+            if (idx < 26) {
+                return `チーム${String.fromCharCode(65 + idx)}`;
+            } else {
+                return `チーム${String.fromCharCode(65 + Math.floor(idx / 26) - 1)}${String.fromCharCode(65 + (idx % 26))}`;
+            }
+        }
+
         function renderTeamInputs() {
             const count = parseInt(document.getElementById('cfg-teams').value, 10);
             const container = document.getElementById('team-inputs-container');
             let html = '';
             for (let i = 0; i < count; i++) {
-                const defaultName = `チーム${String.fromCharCode(65 + i)}`;
+                const defaultName = getTeamDefaultName(i);
                 const existingVal = document.getElementById(`team-in-${i}`)?.value || defaultName;
                 html += `
                     <div class="team-input-group">
                         <span>T${i+1}</span>
-                        <input type="text" id="team-in-${i}" value="${existingVal}" placeholder="チーム名">
+                        <input type="text" id="team-in-${i}" value="${existingVal}" placeholder="チーム名" oninput="onTeamNameChange(${i})">
                     </div>
                 `;
             }
             container.innerHTML = html;
+        }
+
+        function onTeamNameChange(idx) {
+            const val = document.getElementById(`team-in-${idx}`)?.value || getTeamDefaultName(idx);
+            state.teams[idx] = val;
+            
+            if (state.schedMode === 'manual') {
+                renderScheduleTable();
+            } else {
+                buildSchedule();
+            }
+            renderMatrixes();
+            calculateAll();
         }
 
         function buildApp() {
@@ -679,19 +777,29 @@
             state.teams = [];
             for (let i = 0; i < teamCount; i++) {
                 const val = document.getElementById(`team-in-${i}`)?.value;
-                state.teams.push(val || `チーム${String.fromCharCode(65 + i)}`);
+                state.teams.push(val || getTeamDefaultName(i));
             }
 
             state.roundsCount = parseInt(document.getElementById('cfg-rounds').value, 10);
             state.courtsCount = parseInt(document.getElementById('cfg-courts').value, 10);
+            state.schedMode = document.getElementById('cfg-sched-mode').value;
 
-            buildSchedule();
+            if (state.schedMode === 'auto') {
+                buildSchedule();
+            } else {
+                if (state.matches.length === 0) {
+                    initDefaultManualMatches();
+                } else {
+                    renderScheduleTable();
+                }
+            }
+
             renderMatrixes();
             buildTournamentInputs();
             calculateAll();
         }
 
-        // 予選スケジュールの生成（1〜4コート割り振り対応）
+        // 自動スケジュールの生成
         function buildSchedule() {
             state.matches = [];
             let matchId = 0;
@@ -699,7 +807,6 @@
             for (let r = 1; r <= state.roundsCount; r++) {
                 for (let i = 0; i < state.teams.length; i++) {
                     for (let j = i + 1; j < state.teams.length; j++) {
-                        // コートの自動割り振りを計算 (A, B, C, D)
                         const courtIdx = matchId % state.courtsCount;
                         const courtName = COURT_NAMES[courtIdx];
 
@@ -715,22 +822,128 @@
                 }
             }
 
-            const tbody = document.getElementById('schedule-tbody');
-            tbody.innerHTML = '';
-            state.matches.forEach((m, idx) => {
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td><span class="court-badge court-${m.court}">${m.court}コート</span></td>
-                    <td>第${idx + 1}試合<br><span style="font-size:9px; color:var(--sub-text);">${m.roundNum}巡目</span></td>
-                    <td>${state.teams[m.teamA]} vs ${state.teams[m.teamB]}</td>
-                    <td>
-                        <input type="number" class="score-input" id="s_${m.id}_a" oninput="calculateAll()" min="0"> - 
-                        <input type="number" class="score-input" id="s_${m.id}_b" oninput="calculateAll()" min="0">
-                    </td>
-                    <td id="res_disp_${m.id}">-</td>
-                `;
-                tbody.appendChild(tr);
+            renderScheduleTable();
+        }
+
+        // 手動スケジュールの初期状態作成
+        function initDefaultManualMatches() {
+            state.matches = [];
+            let matchId = 0;
+            for (let i = 0; i < state.teams.length; i++) {
+                for (let j = i + 1; j < state.teams.length; j++) {
+                    const courtIdx = matchId % state.courtsCount;
+                    state.matches.push({
+                        id: matchId,
+                        roundNum: 1,
+                        teamA: i,
+                        teamB: j,
+                        court: COURT_NAMES[courtIdx]
+                    });
+                    matchId++;
+                }
+            }
+            renderScheduleTable();
+        }
+
+        function addManualMatchRow() {
+            const newId = state.matches.length > 0 ? Math.max(...state.matches.map(m => m.id)) + 1 : 0;
+            const courtIdx = newId % state.courtsCount;
+            state.matches.push({
+                id: newId,
+                roundNum: 1,
+                teamA: 0,
+                teamB: 1,
+                court: COURT_NAMES[courtIdx]
             });
+            renderScheduleTable();
+            calculateAll();
+        }
+
+        function removeManualMatchRow(id) {
+            state.matches = state.matches.filter(m => m.id !== id);
+            renderScheduleTable();
+            calculateAll();
+        }
+
+        function renderScheduleTable() {
+            const tbody = document.getElementById('schedule-tbody');
+            const thAction = document.getElementById('th-action');
+            const addBtnContainer = document.getElementById('manual-add-btn-container');
+
+            tbody.innerHTML = '';
+
+            if (state.schedMode === 'manual') {
+                thAction.style.display = '';
+                addBtnContainer.style.display = 'block';
+
+                state.matches.forEach((m, idx) => {
+                    const tr = document.createElement('tr');
+                    
+                    let courtOptions = '';
+                    for (let c = 0; c < state.courtsCount; c++) {
+                        const cName = COURT_NAMES[c];
+                        const sel = m.court === cName ? 'selected' : '';
+                        courtOptions += `<option value="${cName}" ${sel}>${cName}コート</option>`;
+                    }
+
+                    let teamAOpts = '', teamBOpts = '';
+                    state.teams.forEach((tName, tIdx) => {
+                        teamAOpts += `<option value="${tIdx}" ${m.teamA == tIdx ? 'selected' : ''}>${tName}</option>`;
+                        teamBOpts += `<option value="${tIdx}" ${m.teamB == tIdx ? 'selected' : ''}>${tName}</option>`;
+                    });
+
+                    tr.innerHTML = `
+                        <td>
+                            <select class="match-select" onchange="updateManualMatch(${m.id}, 'court', this.value)">
+                                ${courtOptions}
+                            </select>
+                        </td>
+                        <td>第${idx + 1}試合</td>
+                        <td>
+                            <select class="match-select" onchange="updateManualMatch(${m.id}, 'teamA', this.value)">${teamAOpts}</select>
+                            vs
+                            <select class="match-select" onchange="updateManualMatch(${m.id}, 'teamB', this.value)">${teamBOpts}</select>
+                        </td>
+                        <td>
+                            <input type="number" class="score-input" id="s_${m.id}_a" oninput="calculateAll()" min="0"> - 
+                            <input type="number" class="score-input" id="s_${m.id}_b" oninput="calculateAll()" min="0">
+                        </td>
+                        <td id="res_disp_${m.id}">-</td>
+                        <td>
+                            <button class="btn-danger" onclick="removeManualMatchRow(${m.id})">削除</button>
+                        </td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            } else {
+                thAction.style.display = 'none';
+                addBtnContainer.style.display = 'none';
+
+                state.matches.forEach((m, idx) => {
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td><span class="court-badge court-${m.court}">${m.court}コート</span></td>
+                        <td>第${idx + 1}試合<br><span style="font-size:9px; color:var(--sub-text);">${m.roundNum}巡目</span></td>
+                        <td>${state.teams[m.teamA]} vs ${state.teams[m.teamB]}</td>
+                        <td>
+                            <input type="number" class="score-input" id="s_${m.id}_a" oninput="calculateAll()" min="0"> - 
+                            <input type="number" class="score-input" id="s_${m.id}_b" oninput="calculateAll()" min="0">
+                        </td>
+                        <td id="res_disp_${m.id}">-</td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            }
+        }
+
+        function updateManualMatch(id, field, value) {
+            const match = state.matches.find(m => m.id === id);
+            if (match) {
+                if (field === 'court') match.court = value;
+                if (field === 'teamA') match.teamA = parseInt(value, 10);
+                if (field === 'teamB') match.teamB = parseInt(value, 10);
+            }
+            calculateAll();
         }
 
         function renderMatrixes() {
@@ -738,14 +951,18 @@
             container.innerHTML = '';
 
             let html = '';
-            for (let r = 1; r <= state.roundsCount; r++) {
-                html += `<div class="matrix-title">■ 第 ${r} 巡目 対戦表</div>`;
-                html += renderSingleMatrixTable(`r${r}`);
-            }
-
-            if (state.roundsCount > 1) {
-                html += `<div class="matrix-title total">🏆 予選 通算対戦表</div>`;
-                html += renderSingleMatrixTable('total');
+            if (state.schedMode === 'auto') {
+                for (let r = 1; r <= state.roundsCount; r++) {
+                    html += `<div class="matrix-title">■ 第 ${r} 巡目 対戦表</div>`;
+                    html += `<div class="table-responsive">${renderSingleMatrixTable(`r${r}`)}</div>`;
+                }
+                if (state.roundsCount > 1) {
+                    html += `<div class="matrix-title total">🏆 予選 通算対戦表</div>`;
+                    html += `<div class="table-responsive">${renderSingleMatrixTable('total')}</div>`;
+                }
+            } else {
+                html += `<div class="matrix-title total">🏆 予選 星取表</div>`;
+                html += `<div class="table-responsive">${renderSingleMatrixTable('total')}</div>`;
             }
 
             container.innerHTML = html;
@@ -759,7 +976,7 @@
             html += `<th class="stats-hdr">勝</th><th class="stats-hdr">分</th><th class="stats-hdr">負</th><th class="stats-hdr">勝点</th><th class="stats-hdr">自内野</th><th class="stats-hdr">相内野</th><th class="rank-hdr">順位</th></tr></thead><tbody>`;
 
             state.teams.forEach((_, rIdx) => {
-                html += `<tr><td style="font-weight:bold;">${state.teams[rIdx]}</td>`;
+                html += `<tr><td style="font-weight:bold; text-align:left;">${state.teams[rIdx]}</td>`;
                 state.teams.forEach((_, cIdx) => {
                     if (rIdx === cIdx) {
                         html += `<td class="self-cell">-</td>`;
@@ -915,13 +1132,20 @@
                     }
                 });
 
-                document.getElementById(`st_${prefix}_w_${i}`).innerText = st.win;
-                document.getElementById(`st_${prefix}_d_${i}`).innerText = st.draw;
-                document.getElementById(`st_${prefix}_l_${i}`).innerText = st.lose;
-                document.getElementById(`st_${prefix}_pts_${i}`).innerText = st.pts;
-                document.getElementById(`st_${prefix}_myin_${i}`).innerText = st.myIn;
-                document.getElementById(`st_${prefix}_oppin_${i}`).innerText = st.oppIn;
-                document.getElementById(`st_${prefix}_rank_${i}`).innerText = `${rankMap[st.id]}位`;
+                const wEl = document.getElementById(`st_${prefix}_w_${i}`);
+                if (wEl) wEl.innerText = st.win;
+                const dEl = document.getElementById(`st_${prefix}_d_${i}`);
+                if (dEl) dEl.innerText = st.draw;
+                const lEl = document.getElementById(`st_${prefix}_l_${i}`);
+                if (lEl) lEl.innerText = st.lose;
+                const ptsEl = document.getElementById(`st_${prefix}_pts_${i}`);
+                if (ptsEl) ptsEl.innerText = st.pts;
+                const myInEl = document.getElementById(`st_${prefix}_myin_${i}`);
+                if (myInEl) myInEl.innerText = st.myIn;
+                const oppInEl = document.getElementById(`st_${prefix}_oppin_${i}`);
+                if (oppInEl) oppInEl.innerText = st.oppIn;
+                const rankEl = document.getElementById(`st_${prefix}_rank_${i}`);
+                if (rankEl) rankEl.innerText = `${rankMap[st.id]}位`;
             });
         }
 
@@ -951,13 +1175,12 @@
                     } else {
                         if (panel) panel.style.display = 'inline-block';
                         const vWin = vSelect ? vSelect.value : '';
-                        const loserScore = sa - 1 >= 0 ? sa - 1 : 0;
                         if (vWin === 'A') {
                             winA++;
-                            setDetails.push(`${sa}v(${sa})-(${sb})${loserScore}`);
+                            setDetails.push(`${sa}v(${sa})-${sb}`);
                         } else if (vWin === 'B') {
                             winB++;
-                            setDetails.push(`${loserScore}(${sa})-(${sb})${sb}v`);
+                            setDetails.push(`${sa}-(${sb})${sb}v`);
                         } else {
                             setDetails.push(`${sa}-${sb}(Vpt未決)`);
                         }
@@ -988,9 +1211,11 @@
 
             let statsRounds = {};
             let cellsRounds = {};
-            for (let r = 1; r <= state.roundsCount; r++) {
-                statsRounds[r] = state.teams.map((name, i) => ({ id: i, name, pts: 0, win: 0, draw: 0, lose: 0, myIn: 0, oppIn: 0 }));
-                cellsRounds[r] = {};
+            if (state.schedMode === 'auto') {
+                for (let r = 1; r <= state.roundsCount; r++) {
+                    statsRounds[r] = state.teams.map((name, i) => ({ id: i, name, pts: 0, win: 0, draw: 0, lose: 0, myIn: 0, oppIn: 0 }));
+                    cellsRounds[r] = {};
+                }
             }
 
             let statsTotal = state.teams.map((name, i) => ({ id: i, name, pts: 0, win: 0, draw: 0, lose: 0, myIn: 0, oppIn: 0 }));
@@ -1004,11 +1229,11 @@
                 if (saEl && sbEl && saEl.value !== '' && sbEl.value !== '') {
                     const sa = parseInt(saEl.value, 10);
                     const sb = parseInt(sbEl.value, 10);
-                    const r = m.roundNum;
+
+                    const teamAName = state.teams[m.teamA] || `チーム${m.teamA + 1}`;
+                    const teamBName = state.teams[m.teamB] || `チーム${m.teamB + 1}`;
 
                     if (resDispEl) {
-                        const teamAName = state.teams[m.teamA];
-                        const teamBName = state.teams[m.teamB];
                         if (sa > sb) {
                             resDispEl.innerHTML = `<span style="color:#fff;">${teamAName}</span><span class="res-badge res-win">勝</span>`;
                         } else if (sb > sa) {
@@ -1018,34 +1243,45 @@
                         }
                     }
 
-                    addStats(statsRounds[r][m.teamA], statsRounds[r][m.teamB], sa, sb);
+                    if (m.teamA !== m.teamB) {
+                        if (state.schedMode === 'auto') {
+                            const r = m.roundNum;
+                            addStats(statsRounds[r][m.teamA], statsRounds[r][m.teamB], sa, sb);
 
-                    let symA = sa > sb ? '◯' : (sa < sb ? '●' : '△');
-                    let symB = sb > sa ? '◯' : (sb < sa ? '●' : '△');
-                    cellsRounds[r][`${m.teamA}_${m.teamB}`] = `${symA}${sa}-${sb}`;
-                    cellsRounds[r][`${m.teamB}_${m.teamA}`] = `${symB}${sb}-${sa}`;
+                            let symA = sa > sb ? '◯' : (sa < sb ? '●' : '△');
+                            let symB = sb > sa ? '◯' : (sb < sa ? '●' : '△');
+                            cellsRounds[r][`${m.teamA}_${m.teamB}`] = `${symA}${sa}-${sb}`;
+                            cellsRounds[r][`${m.teamB}_${m.teamA}`] = `${symB}${sb}-${sa}`;
+                        }
 
-                    addStats(statsTotal[m.teamA], statsTotal[m.teamB], sa, sb);
+                        addStats(statsTotal[m.teamA], statsTotal[m.teamB], sa, sb);
 
-                    if (!cellsTotal[`${m.teamA}_${m.teamB}`]) cellsTotal[`${m.teamA}_${m.teamB}`] = [];
-                    if (!cellsTotal[`${m.teamB}_${m.teamA}`]) cellsTotal[`${m.teamB}_${m.teamA}`] = [];
-                    cellsTotal[`${m.teamA}_${m.teamB}`].push(`${symA}${sa}-${sb}`);
-                    cellsTotal[`${m.teamB}_${m.teamA}`].push(`${symB}${sb}-${sa}`);
+                        let symA = sa > sb ? '◯' : (sa < sb ? '●' : '△');
+                        let symB = sb > sa ? '◯' : (sb < sa ? '●' : '△');
+
+                        if (!cellsTotal[`${m.teamA}_${m.teamB}`]) cellsTotal[`${m.teamA}_${m.teamB}`] = [];
+                        if (!cellsTotal[`${m.teamB}_${m.teamA}`]) cellsTotal[`${m.teamB}_${m.teamA}`] = [];
+                        cellsTotal[`${m.teamA}_${m.teamB}`].push(`${symA}${sa}-${sb}`);
+                        cellsTotal[`${m.teamB}_${m.teamA}`].push(`${symB}${sb}-${sa}`);
+                    }
                 } else {
                     if (resDispEl) resDispEl.innerText = '-';
                 }
             });
 
-            for (let r = 1; r <= state.roundsCount; r++) {
-                updateMatrixUI(`r${r}`, statsRounds[r], cellsRounds[r], false);
-            }
-
-            if (state.roundsCount > 1) {
+            if (state.schedMode === 'auto') {
+                for (let r = 1; r <= state.roundsCount; r++) {
+                    updateMatrixUI(`r${r}`, statsRounds[r], cellsRounds[r], false);
+                }
+                if (state.roundsCount > 1) {
+                    updateMatrixUI('total', statsTotal, cellsTotal, true);
+                }
+            } else {
                 updateMatrixUI('total', statsTotal, cellsTotal, true);
             }
 
             let sortedTarget = [];
-            if (targetMode === 'last') {
+            if (state.schedMode === 'auto' && targetMode === 'last') {
                 sortedTarget = [...statsRounds[state.roundsCount]].sort((a,b) => b.pts - a.pts || b.myIn - a.myIn);
             } else {
                 sortedTarget = [...statsTotal].sort((a,b) => b.pts - a.pts || b.myIn - a.myIn);
@@ -1125,12 +1361,14 @@
                     eventName: document.getElementById('cfg-event-name').value,
                     eventDate: document.getElementById('cfg-event-date').value,
                     teamsCount: document.getElementById('cfg-teams').value,
+                    schedMode: document.getElementById('cfg-sched-mode').value,
                     courtsCount: document.getElementById('cfg-courts').value,
                     roundsCount: document.getElementById('cfg-rounds').value,
                     targetRound: document.getElementById('cfg-target-round').value,
                     setsRule: document.getElementById('cfg-sets-rule').value,
                     teamNames: state.teams
                 },
+                matches: state.matches,
                 preliminaryScores: {},
                 tournamentScores: {}
             };
@@ -1184,6 +1422,9 @@
                             });
                         }
 
+                        if (data.config.schedMode !== undefined) {
+                            document.getElementById('cfg-sched-mode').value = data.config.schedMode;
+                        }
                         if (data.config.courtsCount !== undefined) {
                             document.getElementById('cfg-courts').value = data.config.courtsCount;
                         }
@@ -1191,7 +1432,11 @@
                         document.getElementById('cfg-target-round').value = data.config.targetRound;
                         document.getElementById('cfg-sets-rule').value = data.config.setsRule;
 
-                        buildApp();
+                        if (data.matches) {
+                            state.matches = data.matches;
+                        }
+
+                        toggleSchedModeUI();
                     }
 
                     if (data.preliminaryScores) {
@@ -1237,14 +1482,19 @@
             csvContent += `大会名,"${eventName}"\n`;
             csvContent += `開催日,"${eventDate}"\n\n`;
 
-            for (let r = 1; r <= state.roundsCount; r++) {
-                csvContent += `■ 第 ${r} 巡目 対戦表\n`;
-                csvContent += getMatrixTableCSVData(`r${r}`);
-                csvContent += "\n\n";
-            }
-
-            if (state.roundsCount > 1) {
-                csvContent += `■ 予選 通算対戦表\n`;
+            if (state.schedMode === 'auto') {
+                for (let r = 1; r <= state.roundsCount; r++) {
+                    csvContent += `■ 第 ${r} 巡目 対戦表\n`;
+                    csvContent += getMatrixTableCSVData(`r${r}`);
+                    csvContent += "\n\n";
+                }
+                if (state.roundsCount > 1) {
+                    csvContent += `■ 予選 通算対戦表\n`;
+                    csvContent += getMatrixTableCSVData('total');
+                    csvContent += "\n\n";
+                }
+            } else {
+                csvContent += `■ 予選 星取表\n`;
                 csvContent += getMatrixTableCSVData('total');
                 csvContent += "\n\n";
             }
