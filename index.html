@@ -182,14 +182,46 @@
         }
 
         /* セクションタイトル */
+        .section-header-flex {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 950px;
+            margin: 25px auto 10px auto;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
         .section-title {
             font-size: 16px;
             color: var(--accent2);
-            margin: 25px auto 10px auto;
-            text-align: left;
-            max-width: 950px;
             border-left: 4px solid var(--accent2);
             padding-left: 8px;
+            margin: 0;
+            text-align: left;
+        }
+
+        /* スケジュール表示切替タブ */
+        .view-tab-group {
+            display: flex;
+            background: #0f172a;
+            padding: 3px;
+            border-radius: 6px;
+            border: 1px solid var(--border);
+        }
+        .view-tab-btn {
+            padding: 5px 12px;
+            font-size: 12px;
+            font-weight: bold;
+            color: var(--sub-text);
+            background: transparent;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .view-tab-btn.active {
+            background: var(--accent2);
+            color: #0f172a;
         }
 
         /* テーブル共通 (横スクロール対応) */
@@ -214,6 +246,27 @@
             vertical-align: middle;
         }
         th { background: #1e293b; color: var(--sub-text); }
+
+        /* コート別グリッドビューのスタイル */
+        .court-grid-container {
+            display: grid;
+            gap: 12px;
+            max-width: 950px;
+            margin: 0 auto 20px auto;
+        }
+        .court-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        .court-card-header {
+            padding: 8px;
+            font-weight: bold;
+            font-size: 14px;
+            color: #fff;
+            text-align: center;
+        }
 
         /* コート別バッジ表示 (A~D) */
         .court-badge {
@@ -469,15 +522,16 @@
             .header-container { margin-bottom: 10px; }
             .event-date-disp { color: #333 !important; font-size: 12px; }
             h1 { color: #000 !important; font-size: 20px; margin-bottom: 10px; }
-            .config-card, .btn-primary, .io-btn-group, .section-title:nth-of-type(1), .table-responsive, .section-title:nth-of-type(3), #tournament-container, .btn-secondary, .btn-danger {
+            .config-card, .btn-primary, .io-btn-group, .view-tab-group, .section-header-flex button, #manual-add-btn-container, .btn-secondary, .btn-danger {
                 display: none !important;
             }
             .section-title { color: #000 !important; border-left-color: #000 !important; margin-top: 10px; }
-            table, .tournament-wrapper, .tourn-match-card {
+            table, .tournament-wrapper, .tourn-match-card, .court-card {
                 background: #fff !important; color: #000 !important; border: 1px solid #666 !important; box-shadow: none !important;
             }
             th, td { border: 1px solid #666 !important; color: #000 !important; background: #fff !important; }
             .matrix-title { color: #000 !important; }
+            .court-card-header { color: #000 !important; border-bottom: 1px solid #666; background: #eee !important; }
             .t-team-node, .match-score-disp { background: #fff !important; color: #000 !important; border-color: #333 !important; }
             .t-team-name { color: #000 !important; }
             .bracket-line, .bracket-line::after { border-color: #333 !important; background-color: #333 !important; }
@@ -524,8 +578,8 @@
             <div class="config-item">
                 <label>使用コート数</label>
                 <select id="cfg-courts" onchange="buildApp()">
-                    <option value="1" selected>1コート (A)</option>
-                    <option value="2">2コート (A, B)</option>
+                    <option value="1">1コート (A)</option>
+                    <option value="2" selected>2コート (A, B)</option>
                     <option value="3">3コート (A, B, C)</option>
                     <option value="4">4コート (A, B, C, D)</option>
                 </select>
@@ -579,9 +633,17 @@
         <button class="btn-primary" onclick="buildApp()">大会構成を適用して再構築</button>
     </div>
 
-    <!-- 予選タイムスケジュール -->
-    <div class="section-title">📅 予選リーグ スケジュール & スコア入力</div>
-    <div class="table-responsive">
+    <!-- 予選タイムスケジュール (表示切り替え機能付き) -->
+    <div class="section-header-flex">
+        <div class="section-title">📅 予選リーグ スケジュール & スコア入力</div>
+        <div class="view-tab-group">
+            <button class="view-tab-btn active" id="tab-btn-timeline" onclick="switchScheduleView('timeline')">時系列順</button>
+            <button class="view-tab-btn" id="tab-btn-court" onclick="switchScheduleView('court')">コート別</button>
+        </div>
+    </div>
+
+    <!-- 1. 時系列表示用テーブル -->
+    <div class="table-responsive" id="sched-view-timeline">
         <table id="schedule-table">
             <thead>
                 <tr>
@@ -598,6 +660,14 @@
             </tbody>
         </table>
     </div>
+
+    <!-- 2. コート別表示用コンテナ -->
+    <div id="sched-view-court" style="display: none;">
+        <div id="court-grid-container" class="court-grid-container">
+            <!-- JSで動的生成 -->
+        </div>
+    </div>
+
     <div id="manual-add-btn-container" style="display:none; text-align: left; max-width: 950px; margin: -10px auto 15px auto;">
         <button class="btn-secondary" onclick="addManualMatchRow()">＋ 試合を追加</button>
     </div>
@@ -654,7 +724,7 @@
                 <div class="tree-teams">
                     <div class="t-team-node">
                         <span class="t-team-label" id="t-semi2-lblA">予選2位</span>
-                        <span class="t-team-name" id="t-semi2-b">-</span>
+                        <span class="t-team-name" id="t-semi2-a">-</span>
                     </div>
                     <div class="t-team-node">
                         <span class="t-team-label" id="t-semi2-lblB">予選3位</span>
@@ -686,8 +756,9 @@
         let state = {
             teams: [],
             roundsCount: 1,
-            courtsCount: 1,
+            courtsCount: 2,
             schedMode: 'auto', // 'auto' | 'manual'
+            scheduleView: 'timeline', // 'timeline' | 'court'
             matches: []
         };
 
@@ -734,6 +805,17 @@
             buildApp();
         }
 
+        function switchScheduleView(viewMode) {
+            state.scheduleView = viewMode;
+            document.getElementById('tab-btn-timeline').classList.toggle('active', viewMode === 'timeline');
+            document.getElementById('tab-btn-court').classList.toggle('active', viewMode === 'court');
+
+            document.getElementById('sched-view-timeline').style.display = viewMode === 'timeline' ? 'block' : 'none';
+            document.getElementById('sched-view-court').style.display = viewMode === 'court' ? 'block' : 'none';
+
+            renderSchedule();
+        }
+
         function getTeamDefaultName(idx) {
             if (idx < 26) {
                 return `チーム${String.fromCharCode(65 + idx)}`;
@@ -764,7 +846,7 @@
             state.teams[idx] = val;
             
             if (state.schedMode === 'manual') {
-                renderScheduleTable();
+                renderSchedule();
             } else {
                 buildSchedule();
             }
@@ -790,7 +872,7 @@
                 if (state.matches.length === 0) {
                     initDefaultManualMatches();
                 } else {
-                    renderScheduleTable();
+                    renderSchedule();
                 }
             }
 
@@ -799,7 +881,7 @@
             calculateAll();
         }
 
-        // 自動スケジュールの生成
+        // 自動スケジュールの生成（コート順に均等分配）
         function buildSchedule() {
             state.matches = [];
             let matchId = 0;
@@ -822,7 +904,7 @@
                 }
             }
 
-            renderScheduleTable();
+            renderSchedule();
         }
 
         // 手動スケジュールの初期状態作成
@@ -842,7 +924,7 @@
                     matchId++;
                 }
             }
-            renderScheduleTable();
+            renderSchedule();
         }
 
         function addManualMatchRow() {
@@ -855,20 +937,34 @@
                 teamB: 1,
                 court: COURT_NAMES[courtIdx]
             });
-            renderScheduleTable();
+            renderSchedule();
             calculateAll();
         }
 
         function removeManualMatchRow(id) {
             state.matches = state.matches.filter(m => m.id !== id);
-            renderScheduleTable();
+            renderSchedule();
             calculateAll();
         }
 
-        function renderScheduleTable() {
+        // スケジュール全体の描画振分け
+        function renderSchedule() {
+            renderScheduleTimeline();
+            renderScheduleCourt();
+        }
+
+        // 1. 時系列スケジュール描画
+        function renderScheduleTimeline() {
             const tbody = document.getElementById('schedule-tbody');
             const thAction = document.getElementById('th-action');
             const addBtnContainer = document.getElementById('manual-add-btn-container');
+
+            // 現在の入力値を保持
+            const currentScores = {};
+            state.matches.forEach(m => {
+                currentScores[`${m.id}_a`] = document.getElementById(`s_${m.id}_a`)?.value;
+                currentScores[`${m.id}_b`] = document.getElementById(`s_${m.id}_b`)?.value;
+            });
 
             tbody.innerHTML = '';
 
@@ -892,6 +988,9 @@
                         teamBOpts += `<option value="${tIdx}" ${m.teamB == tIdx ? 'selected' : ''}>${tName}</option>`;
                     });
 
+                    const valA = currentScores[`${m.id}_a`] !== undefined ? currentScores[`${m.id}_a`] : '';
+                    const valB = currentScores[`${m.id}_b`] !== undefined ? currentScores[`${m.id}_b`] : '';
+
                     tr.innerHTML = `
                         <td>
                             <select class="match-select" onchange="updateManualMatch(${m.id}, 'court', this.value)">
@@ -905,8 +1004,8 @@
                             <select class="match-select" onchange="updateManualMatch(${m.id}, 'teamB', this.value)">${teamBOpts}</select>
                         </td>
                         <td>
-                            <input type="number" class="score-input" id="s_${m.id}_a" oninput="calculateAll()" min="0"> - 
-                            <input type="number" class="score-input" id="s_${m.id}_b" oninput="calculateAll()" min="0">
+                            <input type="number" class="score-input" id="s_${m.id}_a" value="${valA}" oninput="syncScoreInput(${m.id}, 'a', this.value)" min="0"> - 
+                            <input type="number" class="score-input" id="s_${m.id}_b" value="${valB}" oninput="syncScoreInput(${m.id}, 'b', this.value)" min="0">
                         </td>
                         <td id="res_disp_${m.id}">-</td>
                         <td>
@@ -921,19 +1020,95 @@
 
                 state.matches.forEach((m, idx) => {
                     const tr = document.createElement('tr');
+                    const valA = currentScores[`${m.id}_a`] !== undefined ? currentScores[`${m.id}_a`] : '';
+                    const valB = currentScores[`${m.id}_b`] !== undefined ? currentScores[`${m.id}_b`] : '';
+
                     tr.innerHTML = `
                         <td><span class="court-badge court-${m.court}">${m.court}コート</span></td>
                         <td>第${idx + 1}試合<br><span style="font-size:9px; color:var(--sub-text);">${m.roundNum}巡目</span></td>
                         <td>${state.teams[m.teamA]} vs ${state.teams[m.teamB]}</td>
                         <td>
-                            <input type="number" class="score-input" id="s_${m.id}_a" oninput="calculateAll()" min="0"> - 
-                            <input type="number" class="score-input" id="s_${m.id}_b" oninput="calculateAll()" min="0">
+                            <input type="number" class="score-input" id="s_${m.id}_a" value="${valA}" oninput="syncScoreInput(${m.id}, 'a', this.value)" min="0"> - 
+                            <input type="number" class="score-input" id="s_${m.id}_b" value="${valB}" oninput="syncScoreInput(${m.id}, 'b', this.value)" min="0">
                         </td>
                         <td id="res_disp_${m.id}">-</td>
                     `;
                     tbody.appendChild(tr);
                 });
             }
+        }
+
+        // 2. コート別スケジュール描画
+        function renderScheduleCourt() {
+            const container = document.getElementById('court-grid-container');
+            container.style.gridTemplateColumns = `repeat(auto-fit, minmax(${300}px, 1fr))`;
+
+            // 入力値を保持
+            const currentScores = {};
+            state.matches.forEach(m => {
+                currentScores[`${m.id}_a`] = document.getElementById(`s_${m.id}_a`)?.value || document.getElementById(`cs_${m.id}_a`)?.value || '';
+                currentScores[`${m.id}_b`] = document.getElementById(`s_${m.id}_b`)?.value || document.getElementById(`cs_${m.id}_b`)?.value || '';
+            });
+
+            let html = '';
+            for (let c = 0; c < state.courtsCount; c++) {
+                const cName = COURT_NAMES[c];
+                const courtMatches = state.matches.filter(m => m.court === cName);
+
+                html += `
+                    <div class="court-card">
+                        <div class="court-card-header court-${cName}">${cName}コート (${courtMatches.length}試合)</div>
+                        <div class="table-responsive" style="margin:0;">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th style="width: 50px;">順</th>
+                                        <th>対戦カード</th>
+                                        <th style="width: 110px;">スコア</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                `;
+
+                if (courtMatches.length === 0) {
+                    html += `<tr><td colspan="3" style="color:var(--sub-text);">予定なし</td></tr>`;
+                } else {
+                    courtMatches.forEach((m, idx) => {
+                        const valA = currentScores[`${m.id}_a`] || '';
+                        const valB = currentScores[`${m.id}_b`] || '';
+
+                        html += `
+                            <tr>
+                                <td>第${idx + 1}枠</td>
+                                <td>${state.teams[m.teamA]} vs ${state.teams[m.teamB]}</td>
+                                <td>
+                                    <input type="number" class="score-input" id="cs_${m.id}_a" value="${valA}" oninput="syncScoreInput(${m.id}, 'a', this.value)" min="0"> - 
+                                    <input type="number" class="score-input" id="cs_${m.id}_b" value="${valB}" oninput="syncScoreInput(${m.id}, 'b', this.value)" min="0">
+                                </td>
+                            </tr>
+                        `;
+                    });
+                }
+
+                html += `
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                `;
+            }
+            container.innerHTML = html;
+        }
+
+        // 時系列とコート別のスコア入力同期
+        function syncScoreInput(matchId, teamKey, val) {
+            const mainEl = document.getElementById(`s_${matchId}_${teamKey}`);
+            const courtEl = document.getElementById(`cs_${matchId}_${teamKey}`);
+
+            if (mainEl && mainEl.value !== val) mainEl.value = val;
+            if (courtEl && courtEl.value !== val) courtEl.value = val;
+
+            calculateAll();
         }
 
         function updateManualMatch(id, field, value) {
@@ -943,6 +1118,7 @@
                 if (field === 'teamA') match.teamA = parseInt(value, 10);
                 if (field === 'teamB') match.teamB = parseInt(value, 10);
             }
+            renderSchedule();
             calculateAll();
         }
 
@@ -1222,8 +1398,8 @@
             let cellsTotal = {};
 
             state.matches.forEach(m => {
-                const saEl = document.getElementById(`s_${m.id}_a`);
-                const sbEl = document.getElementById(`s_${m.id}_b`);
+                const saEl = document.getElementById(`s_${m.id}_a`) || document.getElementById(`cs_${m.id}_a`);
+                const sbEl = document.getElementById(`s_${m.id}_b`) || document.getElementById(`cs_${m.id}_b`);
                 const resDispEl = document.getElementById(`res_disp_${m.id}`);
 
                 if (saEl && sbEl && saEl.value !== '' && sbEl.value !== '') {
@@ -1374,8 +1550,8 @@
             };
 
             state.matches.forEach(m => {
-                const sa = document.getElementById(`s_${m.id}_a`)?.value || '';
-                const sb = document.getElementById(`s_${m.id}_b`)?.value || '';
+                const sa = document.getElementById(`s_${m.id}_a`)?.value || document.getElementById(`cs_${m.id}_a`)?.value || '';
+                const sb = document.getElementById(`s_${m.id}_b`)?.value || document.getElementById(`cs_${m.id}_b`)?.value || '';
                 data.preliminaryScores[m.id] = { sa, sb };
             });
 
@@ -1441,10 +1617,10 @@
 
                     if (data.preliminaryScores) {
                         Object.keys(data.preliminaryScores).forEach(id => {
-                            const saEl = document.getElementById(`s_${id}_a`);
-                            const sbEl = document.getElementById(`s_${id}_b`);
-                            if (saEl) saEl.value = data.preliminaryScores[id].sa;
-                            if (sbEl) sbEl.value = data.preliminaryScores[id].sb;
+                            const valA = data.preliminaryScores[id].sa;
+                            const valB = data.preliminaryScores[id].sb;
+                            syncScoreInput(id, 'a', valA);
+                            syncScoreInput(id, 'b', valB);
                         });
                     }
 
