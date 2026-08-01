@@ -1,177 +1,970 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>対戦カード＆コート設定</title>
-  <style>
-    body {
-      font-family: sans-serif;
-      max-width: 800px;
-      margin: 20px auto;
-      padding: 0 20px;
-      background-color: #f5f5f5;
-    }
-    .card {
-      background: #fff;
-      padding: 20px;
-      border-radius: 8px;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-      margin-bottom: 20px;
-    }
-    .form-group {
-      margin-bottom: 15px;
-    }
-    label {
-      font-weight: bold;
-      display: block;
-      margin-bottom: 8px;
-    }
-    .radio-group, .select-group {
-      display: flex;
-      gap: 15px;
-    }
-    .courts-container {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-      gap: 15px;
-    }
-    .court-box {
-      border: 2px solid #3b82f6;
-      border-radius: 6px;
-      padding: 15px;
-      background: #eff6ff;
-    }
-    .court-header {
-      font-weight: bold;
-      color: #1e40af;
-      margin-bottom: 10px;
-      border-bottom: 1px solid #bfdbfe;
-      padding-bottom: 5px;
-    }
-    .match-inputs {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-    .team {
-      display: flex;
-      align-items: center;
-      gap: 5px;
-    }
-    input[type="text"] {
-      width: 100%;
-      padding: 6px;
-      border: 1px solid #ccc;
-      border-radius: 4px;
-      box-sizing: border-box;
-    }
-    .vs {
-      text-align: center;
-      font-weight: bold;
-      color: #ef4444;
-      margin: 4px 0;
-    }
-    button {
-      background-color: #2563eb;
-      color: white;
-      border: none;
-      padding: 10px 20px;
-      border-radius: 4px;
-      cursor: pointer;
-      font-size: 16px;
-    }
-    button:hover {
-      background-color: #1d4ed8;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CLUB TIME SCHEDULE</title>
+    <style>
+        :root {
+            --bg: #0f172a;
+            --card-bg: #1e293b;
+            --accent: #ff7a3d;
+            --accent2: #35c9c1;
+            --text: #f8fafc;
+            --sub-text: #94a3b8;
+            --border: #334155;
+            --gold: #fbd38d;
+            --line-color: #64748b;
+        }
+        * { box-sizing: border-box; }
+        body {
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            margin: 0;
+            padding: 15px;
+            background-color: var(--bg);
+            color: var(--text);
+            text-align: center;
+        }
+        h1 {
+            font-size: 22px;
+            color: var(--gold);
+            margin-bottom: 15px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+        
+        /* 設定カード */
+        .config-card {
+            background: var(--card-bg);
+            padding: 15px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            max-width: 850px;
+            margin: 0 auto 20px auto;
+            text-align: left;
+        }
+        .config-title {
+            font-size: 16px;
+            font-weight: bold;
+            color: var(--accent2);
+            margin-bottom: 10px;
+            border-bottom: 1px dashed var(--border);
+            padding-bottom: 5px;
+        }
+        .config-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 12px;
+            margin-bottom: 15px;
+        }
+        .config-item label {
+            display: block;
+            font-size: 12px;
+            color: var(--sub-text);
+            margin-bottom: 4px;
+        }
+        .config-item select, .config-item input {
+            width: 100%;
+            padding: 8px;
+            border-radius: 6px;
+            border: 1px solid var(--border);
+            background: #0f172a;
+            color: white;
+            font-weight: bold;
+        }
+
+        /* チーム名入力エリア */
+        .team-inputs-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+            gap: 8px;
+            margin-top: 10px;
+        }
+        .team-input-group {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .team-input-group span {
+            font-size: 12px;
+            color: var(--sub-text);
+            width: 24px;
+        }
+
+        .btn-primary {
+            width: 100%;
+            padding: 10px;
+            background: #3182ce;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        /* セクションタイトル */
+        .section-title {
+            font-size: 16px;
+            color: var(--accent2);
+            margin: 25px auto 10px auto;
+            text-align: left;
+            max-width: 850px;
+            border-left: 4px solid var(--accent2);
+            padding-left: 8px;
+        }
+
+        /* テーブル共通 */
+        table {
+            width: 100%;
+            max-width: 850px;
+            margin: 0 auto 20px auto;
+            border-collapse: collapse;
+            background: var(--card-bg);
+            border-radius: 8px;
+            overflow: hidden;
+            font-size: 12px;
+        }
+        th, td {
+            padding: 6px 4px;
+            border: 1px solid var(--border);
+            text-align: center;
+            vertical-align: middle;
+        }
+        th { background: #1e293b; color: var(--sub-text); }
+
+        .court-badge {
+            display: inline-block;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 10px;
+            font-weight: bold;
+            color: #fff;
+        }
+        .court-A { background: #3182ce; }
+
+        .score-input {
+            width: 38px;
+            padding: 3px;
+            text-align: center;
+            background: #0f172a;
+            border: 1px solid var(--border);
+            color: white;
+            font-weight: bold;
+            border-radius: 4px;
+        }
+
+        /* 勝敗バッジ */
+        .res-badge {
+            display: inline-block;
+            font-size: 10px;
+            font-weight: bold;
+            padding: 2px 6px;
+            border-radius: 4px;
+            margin-left: 6px;
+        }
+        .res-win { background-color: #e53e3e; color: #fff; }  /* 勝 */
+        .res-draw { background-color: #d69e2e; color: #fff; } /* 引分 */
+        .res-lose { background-color: #3182ce; color: #fff; } /* 負 */
+
+        .vpt-panel {
+            margin-top: 4px;
+            padding: 4px;
+            background: rgba(255, 122, 61, 0.15);
+            border: 1px dashed var(--accent);
+            border-radius: 4px;
+            display: inline-block;
+        }
+        .v-select {
+            background: #ff7a3d;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            padding: 2px 4px;
+            font-size: 10px;
+            font-weight: bold;
+        }
+
+        /* 星取表 */
+        .matrix-table td.self-cell { background-color: #334155; }
+        .cell-res { font-size: 11px; line-height: 1.3; font-weight: bold; }
+        .stats-hdr { background-color: #0f172a; color: var(--accent2); width: 34px; }
+        .rank-hdr { background-color: #0f172a; color: var(--gold); width: 44px; }
+        .matrix-title {
+            text-align: left;
+            color: var(--accent2);
+            font-size: 13px;
+            font-weight: bold;
+            margin: 15px auto 5px auto;
+            max-width: 850px;
+        }
+        .matrix-title.total {
+            color: var(--gold);
+            font-size: 14px;
+            border-bottom: 1px solid var(--gold);
+            padding-bottom: 4px;
+        }
+
+        /* トーナメント進行カードリスト */
+        .tourn-card-list {
+            max-width: 850px;
+            margin: 0 auto 20px auto;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .tourn-match-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        .tourn-match-header {
+            display: flex;
+            justify-content: space-between;
+            font-size: 11px;
+            color: var(--sub-text);
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 4px;
+        }
+        .tourn-match-body {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            font-weight: bold;
+        }
+        .set-scores-flex {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 6px;
+            background: #0f172a;
+            padding: 6px;
+            border-radius: 6px;
+        }
+
+        /* 🏆 甲子園風トーナメント表（図形表示） */
+        .tournament-wrapper {
+            max-width: 850px;
+            margin: 0 auto;
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 20px;
+            overflow-x: auto;
+        }
+        .tournament-tree {
+            display: flex;
+            justify-content: center;
+            align-items: flex-end;
+            min-width: 500px;
+            gap: 40px;
+            padding-top: 10px;
+        }
+        .tree-half {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+        }
+        .tree-teams {
+            display: flex;
+            gap: 40px;
+            position: relative;
+        }
+        .t-team-node {
+            width: 100px;
+            background: #0f172a;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 6px 4px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            z-index: 2;
+        }
+        .t-team-node.final-node {
+            width: 110px;
+            border-color: var(--gold);
+        }
+        .t-team-label {
+            font-size: 10px;
+            color: var(--sub-text);
+            width: 100%;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .t-team-name {
+            font-size: 12px;
+            font-weight: bold;
+            color: #fff;
+            width: 100%;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .bracket-line {
+            width: 100%;
+            height: 25px;
+            border-top: 3px solid var(--line-color);
+            border-left: 3px solid var(--line-color);
+            border-right: 3px solid var(--line-color);
+            margin-top: -1px;
+            position: relative;
+        }
+        .bracket-line::after {
+            content: '';
+            position: absolute;
+            top: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 3px;
+            height: 20px;
+            background-color: var(--line-color);
+        }
+        .match-score-disp {
+            background: #0f172a;
+            border: 1px solid var(--accent);
+            border-radius: 6px;
+            padding: 4px 10px;
+            margin-bottom: 8px;
+            font-weight: bold;
+            font-size: 12px;
+            color: #fff;
+            z-index: 2;
+            white-space: nowrap;
+        }
+        .match-score-disp.final {
+            border-color: var(--gold);
+        }
+        .final-center {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        .final-teams-flex {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-top: 6px;
+        }
+        .trophy-title {
+            font-size: 13px;
+            font-weight: bold;
+            color: var(--gold);
+            margin-bottom: 4px;
+        }
+    </style>
 </head>
 <body>
 
-  <h1>対戦マッチングシステム</h1>
+    <h1>CLUB TIME SCHEDULE</h1>
 
-  <!-- 設定エリア -->
-  <div class="card">
-    <div class="form-group">
-      <label>1. 対戦カードの決め方</label>
-      <div class="radio-group">
-        <label><input type="radio" name="mode" value="auto" checked onchange="updateView()"> 自動で決める</label>
-        <label><input type="radio" name="mode" value="manual" onchange="updateView()"> 手動で決める</label>
-      </div>
-    </div>
-
-    <div class="form-group">
-      <label for="courtCount">2. 使用コート数（1〜4面）</label>
-      <select id="courtCount" onchange="updateView()" style="padding: 6px 12px;">
-        <option value="1">1 面</option>
-        <option value="2">2 面</option>
-        <option value="3">3 面</option>
-        <option value="4" selected>4 面</option>
-      </select>
-    </div>
-
-    <button onclick="generateMatches()">対戦カードを決定する</button>
-  </div>
-
-  <!-- コート表示エリア -->
-  <div id="courtsArea" class="courts-container"></div>
-
-  <script>
-    // サンプルの参加者リスト（自動モード用）
-    const dummyPlayers = ["田中", "佐藤", "鈴木", "高橋", "伊藤", "渡辺", "山本", "中村", "小林", "加藤", "吉田", "山田", "佐々木", "山口", "松本", "井上"];
-
-    // 画面の表示状態を更新する関数
-    function updateView() {
-      const mode = document.querySelector('input[name="mode"]:checked').value;
-      const courtCount = parseInt(document.getElementById('courtCount').value);
-      const courtsArea = document.getElementById('courtsArea');
-      
-      courtsArea.innerHTML = ''; // 一旦リセット
-
-      for (let i = 1; i <= courtCount; i++) {
-        const courtHtml = `
-          <div class="court-box">
-            <div class="court-header">コート ${i}</div>
-            <div class="match-inputs">
-              <div class="team">
-                <input type="text" id="c${i}_p1" placeholder="選手 1" ${mode === 'auto' ? 'readonly' : ''}>
-                <input type="text" id="c${i}_p2" placeholder="選手 2" ${mode === 'auto' ? 'readonly' : ''}>
-              </div>
-              <div class="vs">VS</div>
-              <div class="team">
-                <input type="text" id="c${i}_p3" placeholder="選手 3" ${mode === 'auto' ? 'readonly' : ''}>
-                <input type="text" id="c${i}_p4" placeholder="選手 4" ${mode === 'auto' ? 'readonly' : ''}>
-              </div>
+    <!-- 大会基本設定エリア -->
+    <div class="config-card">
+        <div class="config-title">⚙️ 大会ルール・形式設定</div>
+        <div class="config-grid">
+            <div class="config-item">
+                <label>参加チーム数</label>
+                <select id="cfg-teams" onchange="renderTeamInputs()">
+                    <option value="2">2チーム</option>
+                    <option value="3" selected>3チーム</option>
+                    <option value="4">4チーム</option>
+                    <option value="5">5チーム</option>
+                    <option value="6">6チーム</option>
+                    <option value="7">7チーム</option>
+                    <option value="8">8チーム</option>
+                </select>
             </div>
-          </div>
-        `;
-        courtsArea.insertAdjacentHTML('beforeend', courtHtml);
-      }
-    }
+            <div class="config-item">
+                <label>予選リーグ 周回（巡）数</label>
+                <select id="cfg-rounds" onchange="buildApp()">
+                    <option value="1">1巡（各1試合）</option>
+                    <option value="2" selected>2巡（各2試合）</option>
+                    <option value="3">3巡（各3試合）</option>
+                    <option value="4">4巡（各4試合）</option>
+                    <option value="5">5巡（各5試合）</option>
+                </select>
+            </div>
+            <div class="config-item">
+                <label>トーナメント対象リーグ</label>
+                <select id="cfg-target-round" onchange="calculateAll()">
+                    <option value="all" selected>全巡（通算成績）</option>
+                    <option value="last">最終巡のみ（直前リーグ優先）</option>
+                </select>
+            </div>
+            <div class="config-item">
+                <label>3セットマッチ適用範囲</label>
+                <select id="cfg-sets-rule" onchange="buildApp()">
+                    <option value="all">1回戦（全試合）から</option>
+                    <option value="qf">準々決勝（ベスト8）から</option>
+                    <option value="semi" selected>準決勝（ベスト4）から</option>
+                    <option value="final">決勝戦のみ</option>
+                    <option value="none">全試合 1セットマッチ</option>
+                </select>
+            </div>
+        </div>
 
-    // 「対戦カードを決定する」ボタンを押したときの処理
-    function generateMatches() {
-      const mode = document.querySelector('input[name="mode"]:checked').value;
-      const courtCount = parseInt(document.getElementById('courtCount').value);
+        <div class="config-title" style="margin-top: 15px;">チーム名設定</div>
+        <div id="team-inputs-container" class="team-inputs-grid">
+            <!-- JSで動的生成 -->
+        </div>
 
-      if (mode === 'auto') {
-        // プレイヤーをシャッフル
-        const shuffled = [...dummyPlayers].sort(() => Math.random() - 0.5);
-        
-        let playerIndex = 0;
-        for (let i = 1; i <= courtCount; i++) {
-          document.getElementById(`c${i}_p1`).value = shuffled[playerIndex++] || "未定";
-          document.getElementById(`c${i}_p2`).value = shuffled[playerIndex++] || "未定";
-          document.getElementById(`c${i}_p3`).value = shuffled[playerIndex++] || "未定";
-          document.getElementById(`c${i}_p4`).value = shuffled[playerIndex++] || "未定";
+        <button class="btn-primary" onclick="buildApp()">大会構成を適用して再構築</button>
+    </div>
+
+    <!-- 予選タイムスケジュール -->
+    <div class="section-title">📅 予選リーグ スケジュール & スコア入力</div>
+    <table id="schedule-table">
+        <thead>
+            <tr>
+                <th style="width: 65px;">コート</th>
+                <th style="width: 65px;">試合</th>
+                <th>対戦カード</th>
+                <th style="width: 130px;">スコア (内野人数)</th>
+                <th style="width: 120px;">結果 (勝/引分/負)</th>
+            </tr>
+        </thead>
+        <tbody id="schedule-tbody">
+            <!-- JSで動的生成 -->
+        </tbody>
+    </table>
+
+    <!-- 予選星取表エリア（巡別＆通算） -->
+    <div class="section-title">⚔️ 予選対戦表（巡別・通算星取表）</div>
+    <div id="matrix-container" style="overflow-x: auto;">
+        <!-- JSで動的生成 -->
+    </div>
+
+    <!-- 決勝トーナメント入力エリア -->
+    <div class="section-title">📝 決勝トーナメント スコア入力</div>
+    <div id="tournament-container" class="tourn-card-list">
+        <!-- JSで動的生成 -->
+    </div>
+
+    <!-- 🏆 甲子園風 決勝トーナメント表（図形表示） -->
+    <div class="section-title">🏆 決勝トーナメント表（図）</div>
+    <div class="tournament-wrapper">
+        <!-- 頂点：決勝戦 -->
+        <div class="final-center">
+            <div class="trophy-title">🥇 決勝戦</div>
+            <div class="final-teams-flex">
+                <div class="t-team-node final-node">
+                    <span class="t-team-label" id="t-final-lblA">準決勝1勝者</span>
+                    <span class="t-team-name" id="t-final-teamA">-</span>
+                </div>
+                <div class="match-score-disp final" id="disp-final-score">- vs -</div>
+                <div class="t-team-node final-node">
+                    <span class="t-team-label" id="t-final-lblB">準決勝2勝者</span>
+                    <span class="t-team-name" id="t-final-teamB">-</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- トーナメント山図 -->
+        <div class="tournament-tree">
+            <!-- 左の山（準決勝1） -->
+            <div class="tree-half">
+                <div class="match-score-disp" id="disp-semi1-score">- vs -</div>
+                <div class="bracket-line"></div>
+                <div class="tree-teams">
+                    <div class="t-team-node">
+                        <span class="t-team-label" id="t-semi1-lblA">予選1位</span>
+                        <span class="t-team-name" id="t-semi1-a">-</span>
+                    </div>
+                    <div class="t-team-node">
+                        <span class="t-team-label" id="t-semi1-lblB">予選4位</span>
+                        <span class="t-team-name" id="t-semi1-b">-</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 右の山（準決勝2） -->
+            <div class="tree-half">
+                <div class="match-score-disp" id="disp-semi2-score">- vs -</div>
+                <div class="bracket-line"></div>
+                <div class="tree-teams">
+                    <div class="t-team-node">
+                        <span class="t-team-label" id="t-semi2-lblA">予選2位</span>
+                        <span class="t-team-name" id="t-semi2-b-dummy">予選3位</span>
+                    </div>
+                    <div class="t-team-node">
+                        <span class="t-team-label" id="t-semi2-lblB">予選3位</span>
+                        <span class="t-team-name" id="t-semi2-b">-</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let state = {
+            teams: [],
+            roundsCount: 1,
+            matches: []
+        };
+
+        // 初期表示時：チーム名入力フィールドの生成
+        function renderTeamInputs() {
+            const count = parseInt(document.getElementById('cfg-teams').value, 10);
+            const container = document.getElementById('team-inputs-container');
+            let html = '';
+            for (let i = 0; i < count; i++) {
+                const defaultName = `チーム${String.fromCharCode(65 + i)}`;
+                const existingVal = document.getElementById(`team-in-${i}`)?.value || defaultName;
+                html += `
+                    <div class="team-input-group">
+                        <span>T${i+1}</span>
+                        <input type="text" id="team-in-${i}" value="${existingVal}" placeholder="チーム名">
+                    </div>
+                `;
+            }
+            container.innerHTML = html;
         }
-      } else {
-        alert("手動モードです。各コートの入力欄に直接プレイヤー名を入力してください。");
-      }
-    }
 
-    // 初期表示
-    updateView();
-  </script>
+        // 大会全体の再構築
+        function buildApp() {
+            const teamCount = parseInt(document.getElementById('cfg-teams').value, 10);
+            state.teams = [];
+            for (let i = 0; i < teamCount; i++) {
+                const val = document.getElementById(`team-in-${i}`)?.value;
+                state.teams.push(val || `チーム${String.fromCharCode(65 + i)}`);
+            }
+
+            state.roundsCount = parseInt(document.getElementById('cfg-rounds').value, 10);
+
+            buildSchedule();
+            renderMatrixes();
+            buildTournamentInputs();
+            calculateAll();
+        }
+
+        // 予選スケジュールの生成
+        function buildSchedule() {
+            state.matches = [];
+            let matchId = 0;
+
+            for (let r = 1; r <= state.roundsCount; r++) {
+                for (let i = 0; i < state.teams.length; i++) {
+                    for (let j = i + 1; j < state.teams.length; j++) {
+                        state.matches.push({
+                            id: matchId++,
+                            roundNum: r,
+                            teamA: i,
+                            teamB: j,
+                            court: 'A'
+                        });
+                    }
+                }
+            }
+
+            const tbody = document.getElementById('schedule-tbody');
+            tbody.innerHTML = '';
+            state.matches.forEach((m, idx) => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td><span class="court-badge court-${m.court}">${m.court}コート</span></td>
+                    <td>第${idx + 1}試合<br><span style="font-size:9px; color:var(--sub-text);">${m.roundNum}巡目</span></td>
+                    <td>${state.teams[m.teamA]} vs ${state.teams[m.teamB]}</td>
+                    <td>
+                        <input type="number" class="score-input" id="s_${m.id}_a" oninput="calculateAll()" min="0"> - 
+                        <input type="number" class="score-input" id="s_${m.id}_b" oninput="calculateAll()" min="0">
+                    </td>
+                    <td id="res_disp_${m.id}">-</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // 星取表（巡別・通算）の枠組み生成
+        function renderMatrixes() {
+            const container = document.getElementById('matrix-container');
+            container.innerHTML = '';
+
+            let html = '';
+
+            // 1巡目〜N巡目の星取表を出力
+            for (let r = 1; r <= state.roundsCount; r++) {
+                html += `<div class="matrix-title">■ 第 ${r} 巡目 対戦表</div>`;
+                html += renderSingleMatrixTable(`r${r}`);
+            }
+
+            // 通算星取表を出力（巡数が2以上の場合）
+            if (state.roundsCount > 1) {
+                html += `<div class="matrix-title total">🏆 予選 通算対戦表</div>`;
+                html += renderSingleMatrixTable('total');
+            }
+
+            container.innerHTML = html;
+        }
+
+        // 1回分（1テーブル）の星取表HTML作成用ヘルパー
+        function renderSingleMatrixTable(prefix) {
+            let html = `<table class="matrix-table"><thead><tr><th>チーム</th>`;
+            state.teams.forEach((_, tIdx) => {
+                html += `<th>${state.teams[tIdx]}</th>`;
+            });
+            html += `<th class="stats-hdr">勝</th><th class="stats-hdr">分</th><th class="stats-hdr">負</th><th class="stats-hdr">勝点</th><th class="stats-hdr">自内野</th><th class="stats-hdr">相内野</th><th class="rank-hdr">順位</th></tr></thead><tbody>`;
+
+            state.teams.forEach((_, rIdx) => {
+                html += `<tr><td style="font-weight:bold;">${state.teams[rIdx]}</td>`;
+                state.teams.forEach((_, cIdx) => {
+                    if (rIdx === cIdx) {
+                        html += `<td class="self-cell">-</td>`;
+                    } else {
+                        html += `<td id="m_${prefix}_cell_${rIdx}_${cIdx}" class="cell-res">-</td>`;
+                    }
+                });
+                html += `<td id="st_${prefix}_w_${rIdx}">0</td><td id="st_${prefix}_d_${rIdx}">0</td><td id="st_${prefix}_l_${rIdx}">0</td>
+                         <td id="st_${prefix}_pts_${rIdx}" style="font-weight:bold; color:var(--gold);">0</td>
+                         <td id="st_${prefix}_myin_${rIdx}" style="font-weight:bold; color:var(--accent2);">0</td>
+                         <td id="st_${prefix}_oppin_${rIdx}">0</td>
+                         <td id="st_${prefix}_rank_${rIdx}" style="font-weight:bold;">-</td></tr>`;
+            });
+
+            html += `</tbody></table>`;
+            return html;
+        }
+
+        // ラウンドごとの3セット判定ヘルパー関数
+        function checkIs3Sets(roundLevel, setsRule) {
+            if (setsRule === 'none') return false;
+            if (setsRule === 'all') return true;
+            if (setsRule === 'qf') return ['qf', 'semi', 'final'].includes(roundLevel);
+            if (setsRule === 'semi') return ['semi', 'final'].includes(roundLevel);
+            if (setsRule === 'final') return roundLevel === 'final';
+            return false;
+        }
+
+        // 決勝トーナメント入力欄の構築
+        function buildTournamentInputs() {
+            const container = document.getElementById('tournament-container');
+            container.innerHTML = '';
+            
+            const setsRule = document.getElementById('cfg-sets-rule').value;
+            const isSemi3Sets = checkIs3Sets('semi', setsRule);
+            const isFinal3Sets = checkIs3Sets('final', setsRule);
+
+            let html = `
+                <div class="tourn-match-card">
+                    <div class="tourn-match-header">
+                        <span>🏆 準決勝 第1試合</span>
+                        <span>${isSemi3Sets ? '3セットマッチ' : '1セットマッチ'}</span>
+                    </div>
+                    <div class="tourn-match-body">
+                        <span id="t_m1_ta">準決1(左)</span>
+                        <span style="color:var(--sub-text); font-size:12px;"> vs </span>
+                        <span id="t_m1_tb">準決1(右)</span>
+                    </div>
+                    ${renderSetInputs('m1', isSemi3Sets)}
+                </div>
+
+                <div class="tourn-match-card">
+                    <div class="tourn-match-header">
+                        <span>🏆 準決勝 第2試合 (シード枠)</span>
+                        <span>${isSemi3Sets ? '3セットマッチ' : '1セットマッチ'}</span>
+                    </div>
+                    <div class="tourn-match-body">
+                        <span id="t_m2_ta">準決2(左)</span>
+                        <span style="color:var(--sub-text); font-size:12px;"> vs </span>
+                        <span id="t_m2_tb">準決2(右)</span>
+                    </div>
+                    ${renderSetInputs('m2', isSemi3Sets)}
+                </div>
+
+                <div class="tourn-match-card" style="border-color: var(--gold);">
+                    <div class="tourn-match-header">
+                        <span style="color:var(--gold); font-weight:bold;">🥇 決勝戦</span>
+                        <span>${isFinal3Sets ? '3セットマッチ' : '1セットマッチ'}</span>
+                    </div>
+                    <div class="tourn-match-body">
+                        <span id="t_mf_ta">決勝(左)</span>
+                        <span style="color:var(--sub-text); font-size:12px;"> vs </span>
+                        <span id="t_mf_tb">決勝(右)</span>
+                    </div>
+                    ${renderSetInputs('mf', isFinal3Sets)}
+                </div>
+            `;
+            container.innerHTML = html;
+        }
+
+        function renderSetInputs(matchKey, is3Sets) {
+            const setsCount = is3Sets ? 3 : 1;
+            let html = '<div class="set-scores-flex">';
+            for (let s = 1; s <= setsCount; s++) {
+                html += `
+                    <div style="font-size:10px;">
+                        Set${s}<br>
+                        <input type="number" class="score-input" id="ts_${matchKey}_s${s}_a" oninput="calculateAll()" min="0"> - 
+                        <input type="number" class="score-input" id="ts_${matchKey}_s${s}_b" oninput="calculateAll()" min="0">
+                        <div id="v_${matchKey}_s${s}_panel" class="vpt-panel" style="display:none;">
+                            <select id="v_${matchKey}_s${s}_win" class="v-select" onchange="calculateAll()">
+                                <option value="">Vpt</option>
+                                <option value="A">左勝</option>
+                                <option value="B">右勝</option>
+                            </select>
+                        </div>
+                    </div>
+                `;
+            }
+            html += '</div>';
+            return html;
+        }
+
+        // トーナメント1試合分の計算
+        function getTournMatchResult(matchKey, is3Sets, teamA, teamB) {
+            const setsCount = is3Sets ? 3 : 1;
+            let winA = 0, winB = 0;
+            let setDetails = [];
+
+            for (let s = 1; s <= setsCount; s++) {
+                const saEl = document.getElementById(`ts_${matchKey}_s${s}_a`);
+                const sbEl = document.getElementById(`ts_${matchKey}_s${s}_b`);
+                const panel = document.getElementById(`v_${matchKey}_s${s}_panel`);
+                const vSelect = document.getElementById(`v_${matchKey}_s${s}_win`);
+
+                if (saEl && sbEl && saEl.value !== '' && sbEl.value !== '') {
+                    const sa = parseInt(saEl.value, 10);
+                    const sb = parseInt(sbEl.value, 10);
+
+                    if (sa > sb) {
+                        winA++;
+                        if (panel) panel.style.display = 'none';
+                        setDetails.push(`${sa}-${sb}`);
+                    } else if (sb > sa) {
+                        winB++;
+                        if (panel) panel.style.display = 'none';
+                        setDetails.push(`${sa}-${sb}`);
+                    } else {
+                        if (panel) panel.style.display = 'inline-block';
+                        const vWin = vSelect ? vSelect.value : '';
+                        const loserScore = sa - 1 >= 0 ? sa - 1 : 0;
+                        if (vWin === 'A') {
+                            winA++;
+                            setDetails.push(`${sa}v(${sa})-(${sb})${loserScore}`);
+                        } else if (vWin === 'B') {
+                            winB++;
+                            setDetails.push(`${loserScore}(${sa})-(${sb})${sb}v`);
+                        } else {
+                            setDetails.push(`${sa}-${sb}(Vpt未決)`);
+                        }
+                    }
+                }
+            }
+
+            let dispText = '- vs -';
+            let winner = '-', loser = '-';
+
+            if (setDetails.length > 0) {
+                if (is3Sets) {
+                    dispText = `(${winA}) ${setDetails.join(' / ')} (${winB})`;
+                    if (winA >= 2) { winner = teamA; loser = teamB; }
+                    else if (winB >= 2) { winner = teamB; loser = teamA; }
+                } else {
+                    dispText = setDetails[0];
+                    if (winA > winB) { winner = teamA; loser = teamB; }
+                    else if (winB > winA) { winner = teamB; loser = teamA; }
+                }
+            }
+
+            return { winner, loser, dispText };
+        }
+
+        // 全体の計算・各巡別および通算星取表への書き換え
+        function calculateAll() {
+            const targetMode = document.getElementById('cfg-target-round').value;
+
+            // 巡ごとのデータ初期化
+            let statsRounds = {};
+            let cellsRounds = {};
+            for (let r = 1; r <= state.roundsCount; r++) {
+                statsRounds[r] = state.teams.map((name, i) => ({ id: i, name, pts: 0, win: 0, draw: 0, lose: 0, myIn: 0, oppIn: 0 }));
+                cellsRounds[r] = {};
+            }
+
+            // 通算用データ
+            let statsTotal = state.teams.map((name, i) => ({ id: i, name, pts: 0, win: 0, draw: 0, lose: 0, myIn: 0, oppIn: 0 }));
+            let cellsTotal = {};
+
+            // スコア集計・計算
+            state.matches.forEach(m => {
+                const saEl = document.getElementById(`s_${m.id}_a`);
+                const sbEl = document.getElementById(`s_${m.id}_b`);
+                const resDispEl = document.getElementById(`res_disp_${m.id}`);
+
+                if (saEl && sbEl && saEl.value !== '' && sbEl.value !== '') {
+                    const sa = parseInt(saEl.value, 10);
+                    const sb = parseInt(sbEl.value, 10);
+                    const r = m.roundNum;
+
+                    // 予選スケジュール表の「結果（勝ち/引き分け/負け）」表示更新
+                    if (resDispEl) {
+                        const teamAName = state.teams[m.teamA];
+                        const teamBName = state.teams[m.teamB];
+                        if (sa > sb) {
+                            resDispEl.innerHTML = `<span style="color:#fff;">${teamAName}</span><span class="res-badge res-win">勝</span>`;
+                        } else if (sb > sa) {
+                            resDispEl.innerHTML = `<span style="color:#fff;">${teamBName}</span><span class="res-badge res-win">勝</span>`;
+                        } else {
+                            resDispEl.innerHTML = `<span class="res-badge res-draw">引き分け</span>`;
+                        }
+                    }
+
+                    // 該当巡に加算
+                    addStats(statsRounds[r][m.teamA], statsRounds[r][m.teamB], sa, sb);
+
+                    // 該当巡の文字記録
+                    let symA = sa > sb ? '◯' : (sa < sb ? '●' : '△');
+                    let symB = sb > sa ? '◯' : (sb < sa ? '●' : '△');
+                    cellsRounds[r][`${m.teamA}_${m.teamB}`] = `${symA}${sa}-${sb}`;
+                    cellsRounds[r][`${m.teamB}_${m.teamA}`] = `${symB}${sb}-${sa}`;
+
+                    // 通算にも加算
+                    addStats(statsTotal[m.teamA], statsTotal[m.teamB], sa, sb);
+
+                    if (!cellsTotal[`${m.teamA}_${m.teamB}`]) cellsTotal[`${m.teamA}_${m.teamB}`] = [];
+                    if (!cellsTotal[`${m.teamB}_${m.teamA}`]) cellsTotal[`${m.teamB}_${m.teamA}`] = [];
+                    cellsTotal[`${m.teamA}_${m.teamB}`].push(`${symA}${sa}-${sb}`);
+                    cellsTotal[`${m.teamB}_${m.teamA}`].push(`${symB}${sb}-${sa}`);
+                } else {
+                    if (resDispEl) resDispEl.innerText = '-';
+                }
+            });
+
+            // 各巡の星取表を表示更新
+            for (let r = 1; r <= state.roundsCount; r++) {
+                updateMatrixUI(`r${r}`, statsRounds[r], cellsRounds[r], false);
+            }
+
+            // 通算星取表の表示更新
+            if (state.roundsCount > 1) {
+                updateMatrixUI('total', statsTotal, cellsTotal, true);
+            }
+
+            // 決勝トーナメント進出判定用のソートデータ選定
+            let sortedTarget = [];
+            if (targetMode === 'last') {
+                sortedTarget = [...statsRounds[state.roundsCount]].sort((a,b) => b.pts - a.pts || b.myIn - a.myIn);
+            } else {
+                sortedTarget = [...statsTotal].sort((a,b) => b.pts - a.pts || b.myIn - a.myIn);
+            }
+
+            // 決勝トーナメントの計算と図形への反映
+            const setsRule = document.getElementById('cfg-sets-rule').value;
+            const isSemi3Sets = checkIs3Sets('semi', setsRule);
+            const isFinal3Sets = checkIs3Sets('final', setsRule);
+
+            let rank1 = sortedTarget[0] ? sortedTarget[0].name : '-';
+            let rank2 = sortedTarget[1] ? sortedTarget[1].name : '-';
+            let rank3 = sortedTarget[2] ? sortedTarget[2].name : '-';
+            let rank4 = sortedTarget[3] ? sortedTarget[3].name : '-';
+
+            let semi1A = rank2;
+            let semi1B = rank3;
+
+            document.getElementById('t_m1_ta').innerText = semi1A;
+            document.getElementById('t_m1_tb').innerText = semi1B;
+            document.getElementById('t-semi1-a').innerText = semi1A;
+            document.getElementById('t-semi1-b').innerText = semi1B;
+
+            if (state.teams.length >= 4) {
+                document.getElementById('t_m2_ta').innerText = rank1;
+                document.getElementById('t_m2_tb').innerText = rank4;
+                document.getElementById('t-semi2-a').innerText = rank1;
+                document.getElementById('t-semi2-b').innerText = rank4;
+            } else {
+                document.getElementById('t_m2_ta').innerText = rank1 + " (シード)";
+                document.getElementById('t_m2_tb').innerText = "なし";
+                document.getElementById('t-semi2-a').innerText = rank1;
+                document.getElementById('t-semi2-b').innerText = "不戦勝";
+            }
+
+            const resM1 = getTournMatchResult('m1', isSemi3Sets, semi1A, semi1B);
+            document.getElementById('disp-semi1-score').innerText = resM1.dispText;
+
+            let resM2 = { winner: rank1, dispText: 'シード進出' };
+            if (state.teams.length >= 4) {
+                resM2 = getTournMatchResult('m2', isSemi3Sets, rank1, rank4);
+                document.getElementById('disp-semi2-score').innerText = resM2.dispText;
+            } else {
+                document.getElementById('disp-semi2-score').innerText = 'シード枠';
+            }
+
+            let finalA = resM1.winner !== '-' ? resM1.winner : '準勝1勝者';
+            let finalB = resM2.winner !== '-' ? resM2.winner : rank1;
+
+            document.getElementById('t_mf_ta').innerText = finalA;
+            document.getElementById('t_mf_tb').innerText = finalB;
+            document.getElementById('t-final-teamA').innerText = finalA;
+            document.getElementById('t-final-teamB').innerText = finalB;
+
+            const resMF = getTournMatchResult('mf', isFinal3Sets, finalA, finalB);
+            document.getElementById('disp-final-score').innerText = resMF.dispText;
+        }
+
+        // 星取表テーブル画面の更新関数
+        function updateMatrixUI(prefix, statsList, cellsData, isArrayCell) {
+            // セル内の対戦結果書き換え
+            for (let r = 0; r < state.teams.length; r++) {
+                for (let c = 0; c < state.teams.length; c++) {
+                    if (r !== c) {
+                        const cellEl = document.getElementById(`m_${prefix}_cell_${r}_${c}`);
+                        if (cellEl) {
+                            const val = cellsData[`${r}_${c}`];
+                            if (isArrayCell) {
+                                cellEl.innerHTML = (val && val.length > 0) ? val.join('<br>') : '-';
+                            } else {
+                                cellEl.innerText = val || '-';
+                            }
+                        }
+                    }
+                }
+            }
+
+            // 右側の集計値と順位書き換え
+            let sorted = [...statsList].sort((a,b) => b.pts - a.pts || b.myIn - a.myIn);
+
+            statsList.forEach(st => {
+                const w = document.getElementById(`st_${prefix}_w_${st.id}`);
+                if (w) {
+                    document.getElementById(`st_${prefix}_w_${st.id}`).innerText = st.win;
+                    document.getElementById(`st_${prefix}_d_${st.id}`).innerText = st.draw;
+                    document.getElementById(`st_${prefix}_l_${st.id}`).innerText = st.lose;
+                    document.getElementById(`st_${prefix}_pts_${st.id}`).innerText = st.pts;
+                    document.getElementById(`st_${prefix}_myin_${st.id}`).innerText = st.myIn;
+                    document.getElementById(`st_${prefix}_oppin_${st.id}`).innerText = st.oppIn;
+
+                    const rankIndex = sorted.findIndex(item => item.id === st.id) + 1;
+                    document.getElementById(`st_${prefix}_rank_${st.id}`).innerText = `${rankIndex}位`;
+                }
+            });
+        }
+
+        function addStats(teamA, teamB, sa, sb) {
+            teamA.myIn += sa; teamA.oppIn += sb;
+            teamB.myIn += sb; teamB.oppIn += sa;
+
+            if (sa > sb) {
+                teamA.pts += 2; teamA.win++;
+                teamB.lose++;
+            } else if (sb > sa) {
+                teamB.pts += 2; teamB.win++;
+                teamA.lose++;
+            } else {
+                teamA.pts += 1; teamA.draw++;
+                teamB.pts += 1; teamB.draw++;
+            }
+        }
+
+        // 初期セットアップ
+        renderTeamInputs();
+        buildApp();
+    </script>
 </body>
 </html>
